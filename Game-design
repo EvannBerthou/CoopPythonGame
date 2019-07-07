@@ -1,0 +1,55 @@
+(?) Uncertain
+
+Game:
+    800x800 window (?)
+    32x32 sprites
+
+    288 pixels are outisde the game board (144 on each sides):
+        Can be used for UI?
+
+Gameplay:
+    2 players:
+        Each controls it own character
+        Mouvements with keyboard
+
+    Map:
+        2d tile based map (16x16 with outside borders)
+
+        Some specials tiles:
+            player inverters
+            teleporters
+            switch
+            pressure plate
+            doors
+
+    Goal:
+        Characters starts on they starting tile
+        They need to go to their own ending tile (or the same?)
+
+Network:
+    Things needed to be synced:
+        Player position: every time a player moves, send his new position
+
+        Switch status  |
+                       |> Thoses can be handle by the local player
+        Doors status   |
+
+        player inverters status
+        next map loading
+
+Map:
+    No map is hardcoded in the game, all maps are load from files
+    Json files:
+        16x16 array with every tile and its default status
+
+    Map creator:
+        Separate application:
+            Save map as json file
+
+    The server tells the player which map he needs to load:
+        How to know if the player has the right map:
+            Hash the json file with the same name as the one given by the server:
+                If the hash given by the server and the player's map hash is the same:
+                    Right map
+                Else:
+                    Wrong map
