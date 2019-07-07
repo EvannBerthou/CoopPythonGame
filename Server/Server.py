@@ -3,14 +3,16 @@ from threading import Thread
 import select
 import argparse
 import curses
+import os
+import hashlib
 
 class ClientThread(Thread):
     clients = []
-    def __init__(self, ip, port, clientsocket, drawer):
+    def __init__(self, ip, port, socket, drawer):
         Thread.__init__(self)
         self.ip = ip
         self.port = port
-        self.clientsocket = clientsocket
+        self.socket = socket
         self.running = True
         self.drawer = drawer
 
@@ -20,14 +22,14 @@ class ClientThread(Thread):
 
     def run(self):
         while self.running:
-            ready = select.select([self.clientsocket], [], [], 0.05)
+            ready = select.select([self.socket], [], [], 0.05)
             if ready[0]:
-                r = self.clientsocket.recv(4096).decode()
+                r = self.socket.recv(4096).decode()
                 if r.strip(' ') != "" and r != "stop":
                     self.drawer.addstr("-> {}".format(r))
                     for client in ClientThread.clients:
                         if client is not self:
-                            client.clientsocket.send("{}:{} {}".format(self.ip,self.port,r).encode())#RENVOIE LE MESSAGE A TOUS LES AUTRES CLIENTS
+                            client.socket.send("{}:{} {}".format(self.ip,self.port,r).encode())#RENVOIE LE MESSAGE A TOUS LES AUTRES CLIENTS
 
                 else:
                     self.drawer.addstr("[-] Déconnexion du client {}:{}".format(self.ip, self.port))
@@ -42,6 +44,8 @@ class ServerDrawer(Thread):
         self.size = self.stdscr.getmaxyx()
         self.current_row = 0
 
+        self.stdscr.scrollok(True)
+
         self.server = server
         self.running = True
 
@@ -49,6 +53,10 @@ class ServerDrawer(Thread):
         self.clear_input()
         self.stdscr.addstr("{}\n".format(str(text)))
         self.current_row += 1
+
+        if self.current_row >= self.size[0]:
+            self.current_row = self.size[0] - 1
+
         self.draw_input()
         self.stdscr.refresh()
 
@@ -60,7 +68,7 @@ class ServerDrawer(Thread):
         self.stdscr.addstr(self.current_input)
 
     def send_command(self):
-        self.addstr("")
+        self.addstr(self.current_input)
         self.server.command(self.current_input.lower())
         self.current_input = ""
         self.clear_input()
@@ -100,12 +108,12 @@ class Server:
             connexions, wlist, xlist = select.select([self.socket], [], [], 0.05)
 
             for connexion in connexions:
-                (clientsocket, (ip,port)) = self.socket.accept()
-                newthread = ClientThread(ip, port, clientsocket, self.drawer)
+                (socket, (ip,port)) = self.socket.accept()
+                newthread = ClientThread(ip, port, socket, self.drawer)
                 newthread.start()
                 self.drawer.addstr("[!] En écoute")
 
-    def CloseServer(self):
+    def CloseServer(self, *args):
         self.drawer.addstr("[!] Fermeture du serveur")
         self.drawer.running = False
         self.running = False
@@ -115,13 +123,46 @@ class Server:
     
     def command(self, command):
         commands = {
-                "quit": self.CloseServer
+                "quit": self.CloseServer,
+                "load_map": self.load_map
         }
 
-        if command in commands:
-            commands[command]()
+        command_name = command.split(' ')[0]
+        args = command.split(' ')[1:]
+
+        if command_name in commands:
+            commands[command_name](args)
         elif command != "":
             self.drawer.addstr("Invalid command")
+
+    def get_map_folder(self):
+        parent_folder = os.path.join(os.path.dirname(__file__), "..")
+        asset_folder = os.path.join(parent_folder, "assets")
+        map_folder = os.path.join(asset_folder, "maps")
+        abs_map_folder = os.path.abspath(map_folder)
+        return abs_map_folder
+
+    def hash_map(self, map_path):
+        with open(map_path, 'r') as f:
+            map_hash = hashlib.sha256(f.read().encode()).hexdigest()
+            return map_hash
+
+    def load_map(self, args):
+        map_name = args[0]
+        map_folder = self.get_map_folder()
+        files = os.listdir(map_folder)
+        if map_name in files:
+            self.drawer.addstr("Loading map {}".format(map_name))
+            map_path = os.path.join(map_folder, map_name)
+            map_hash = self.hash_map(map_path)
+            self.drawer.addstr("Map hash: {}".format(map_hash))
+            self.send_message_to_all_client("map_hash {} {}".format(map_name, map_hash))
+        else:
+            self.drawer.addstr("The map {} does not exist".format(map_name))
+
+    def send_message_to_all_client(self, message):
+        for client in ClientThread.clients:
+            client.socket.send(message.encode())
 
 
 parser = argparse.ArgumentParser(description="Server")
