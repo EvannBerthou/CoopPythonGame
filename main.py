@@ -14,9 +14,11 @@ class Game:
         self.map = Map.Map()
         self.network_manager = Client.NetworkManger(self)
         self.player = Player.Player(True, self.map.offset)
+        self.clock = pygame.time.Clock()
 
     def run(self):
         running = True
+        dt = self.clock.tick(60) / 1000
         while running:
             for event in pygame.event.get():
                 if event.type == QUIT:
