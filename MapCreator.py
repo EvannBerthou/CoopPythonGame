@@ -6,18 +6,17 @@ import pygame
 from pygame.locals import *
 
 class Button:
-    def __init__(self, x,y,size,outline, tile):
+    def __init__(self, x,y,size,tile):
         self.x,self.y = x,y
         self.size = size
-        self.outline = outline
         self.selected = False
         self.tile = tile
 
     def draw(self, game):
-        color = (0,255,0)
-        if self.is_hovered(): color = (255,0,0)
-        if self.selected: color = (0,0,255)
-        pygame.draw.rect(game.win, color, (self.x, self.y, self.size, self.size), self.outline)
+        color = self.tile.color
+        pygame.draw.rect(game.win, color, (self.x, self.y, self.size, self.size))
+        if self.selected:
+            pygame.draw.rect(game.win, (150,150,0), (self.x, self.y, self.size, self.size), 3)
 
     def is_hovered(self):
         mouse_position = pygame.mouse.get_pos()
@@ -107,7 +106,7 @@ class Game:
 
         for i in range(len(tiles_id)):
             tile = tiles_id[i]
-            buttons.append(Button(i * self.cell_size + self.offset, start_y, self.cell_size, 1, tile))
+            buttons.append(Button(i * self.cell_size + self.offset, start_y, self.cell_size, tile))
         buttons[0].selected = True
         return buttons
 
