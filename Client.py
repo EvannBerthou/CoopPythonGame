@@ -43,6 +43,7 @@ class NetworkManger:
 
     def eval_message(self, message):
         commands = {
+                "disconnect": self.disconnect,
                 "map_hash": self.game.map.load_map
         }
 
@@ -58,3 +59,9 @@ class NetworkManger:
         last_message = self.game.game_socket.Listener.get_last_message()
         if last_message:
             self.eval_message(last_message)
+
+    def disconnect(self, reason):
+        reason = " ".join(reason)
+        print("Connection to the server closed")
+        print(reason)
+        self.game.close()

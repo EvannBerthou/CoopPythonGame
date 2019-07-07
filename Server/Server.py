@@ -129,6 +129,11 @@ class Server:
                 newthread.start()
                 self.drawer.addstr("[!] En écoute")
 
+                if len(ClientThread.clients) > 2:
+                    for client in ClientThread.clients[2:]: #from 3rd to last client in the list
+                        client.socket.send("disconnect There is already 2 player in the game".encode())
+                        client.socket.close()
+
     def CloseServer(self, *args):
         self.drawer.addstr("[!] Fermeture du serveur")
         self.drawer.running = False
