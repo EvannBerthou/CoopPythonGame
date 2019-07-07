@@ -32,23 +32,11 @@ class Game:
             self.draw()
         self.close()
 
-    def load_new_map(self, args):
-        map_name = args[0]
-        map_hash = args[1]
-        map_path = os.path.join(self.map_folder, map_name)
-
-        if os.path.exists(map_path):
-            with open(map_path, 'r') as f:
-                local_map_hash = hashlib.sha256(f.read().encode()).hexdigest()
-                if local_map_hash == map_hash:
-                    print("right map")
-                else:
-                    print("wrong map")
 
     
     def eval_message(self, message):
         commands = {
-                "map_hash": self.load_new_map
+                "map_hash": self.map.load_map
         }
 
         message_name = message.split(' ')[0]
