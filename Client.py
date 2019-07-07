@@ -36,3 +36,23 @@ class Listener(Thread):
             last_message = self.last_messages[-1]
             self.last_messages.remove(self.last_messages[-1])
             return last_message
+
+class NetworkManger:
+    def __init__(self, game):
+        self.game = game
+
+    def eval_message(self, message):
+        commands = {
+                "map_hash": self.game.map.load_map
+        }
+
+        message_name = message.split(' ')[0]
+        message_args = message.split(' ')[1:]
+
+        if message_name in commands:
+            commands[message_name](message_args)
+
+    def update_network(self):
+        last_message = self.game.game_socket.Listener.get_last_message()
+        if last_message:
+            self.eval_message(last_message)

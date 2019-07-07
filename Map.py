@@ -5,6 +5,12 @@ import hashlib
 
 #IT MAY BE BETTHER TO CACHE THE GAME INSTEAD OF GIVINT IT AS AN ARG
 class Map:
+    def get_map_folder(self):
+        asset_folder = os.path.join(os.path.dirname(__file__), "assets")
+        map_folder = os.path.join(asset_folder, "maps")
+        abs_map_folder = os.path.abspath(map_folder)
+        return abs_map_folder
+
     def create_board(self):
         offset = self.offset / self.cell_size
         return [[Tiles.Tile(x + offset,y + offset, self.cell_size) for x in range(self.map_size)] for y in range(self.map_size)]
@@ -28,11 +34,11 @@ class Map:
                 else:
                     print("You don't have this map or your map is incompatible")
 
-    def __init__(self, map_folder):
+    def __init__(self):
         self.map_size = 16
         self.cell_size = 48
         self.offset = (800 - self.cell_size * self.map_size) / 2 #OFFSET ON EACH SIDE OF THE MAP
-        self.map_folder = map_folder
+        self.map_folder = self.get_map_folder()
         self.map_data = None
 
 class MapData:
