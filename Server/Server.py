@@ -5,6 +5,7 @@ import argparse
 import curses
 import os
 import hashlib
+import time
 
 class ClientThread(Thread):
     clients = []
@@ -117,6 +118,8 @@ class Server:
         self.running = True
 
         self.map_folder = self.get_map_folder_path()
+        self.start_time = time.time()
+        self.loaded_map_name = list()
 
     def run(self):
         while self.running:
@@ -142,11 +145,24 @@ class Server:
             client.running = False
         self.socket.close()
     
+    def player_count(self, *args):
+        self.drawer.addstr("{} players conncted".format(len(ClientThread.clients)))
+
+    def uptime(self, *args):
+        now = time.time()
+        elapse_time = now - self.start_time
+        time_format = time.strftime("%M:%S", time.gmtime(elapse_time))
+        self.drawer.addstr("{}".format(time_format))
+
     def command(self, command):
         commands = {
                 "quit": self.CloseServer,
+                "exit": self.CloseServer,
                 "load_map": self.load_map,
-                "clear": self.drawer.clear_screen
+                "reload_map": self.reload_map,
+                "clear": self.drawer.clear_screen,
+                "list": self.player_count,
+                "uptime": self.uptime
         }
 
         command_name = command.split(' ')[0]
@@ -170,12 +186,22 @@ class Server:
 
         map_name = args[0]
         map_path = os.path.join(self.map_folder, map_name)
+        self.drawer.addstr(map_path)
         if os.path.exists(map_path):
             map_hash = self.hash_map(map_path)
             self.drawer.addstr("Map hash: {}".format(map_hash))
             self.send_message_to_all_client("map_hash {} {}".format(map_name, map_hash))
+            self.loaded_map_name.clear()
+            self.loaded_map_name.append(map_name)
         else:
             self.drawer.addstr("The map {} does not exist".format(map_name))
+            self.loaded_map_path = None
+
+    def reload_map(self, args):
+        if self.loaded_map_name:
+            self.load_map(self.loaded_map_name)
+        else:
+            self.drawer.addstr("No map is currently loaded")
 
     def send_message_to_all_client(self, message):
         for client in ClientThread.clients:
