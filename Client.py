@@ -58,6 +58,7 @@ class NetworkManger:
         if message_name in commands:
             commands[message_name](message_args)
 
+        #TODO: FIND A BETTER WAY
         #BACK HACK, WHEN A MESSAGE IS SEND TO THE SERVER FROM A CLIENT, THERE IS THIS IP OF THE CLIENT IN THE MESSAGE
         #SO I JUST SHIFT ARGS BY 1 TO AVOID GETTING THE IP
         elif parts[1] in commands:

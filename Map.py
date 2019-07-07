@@ -72,7 +72,8 @@ class MapData:
             for i in range(16): #x
                 for j in range(16): #y
                     board[i][j] = Tiles.from_json_data(board_data[i][j])
-
+    
+            #TODO: MOVE IT TO ITS OWN FUNCTION
             #LINKED PRESSURE PLATES TO DOORS AFTER ALL TILES ARE PLACED ON THE BOARD
             for i in range(16):
                 for j in range(16):

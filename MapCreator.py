@@ -80,7 +80,7 @@ class Game:
                     self.selected_button = btn
                     btn.selected = True
         else:
-            #TEMPORARY: only for tests
+            #TODO: TEMPORARY: only for tests
             self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
             tile = self.board[board_y][board_x] 
             if isinstance(tile, Tiles.Pressure_plate):

@@ -51,9 +51,3 @@ class Game:
 
 game = Game(800,800)
 game.run()
-
-
-"""
-TODO:
-    Server should refuse connection clients when the number of client == 2
-"""
