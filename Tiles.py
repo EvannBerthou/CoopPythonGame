@@ -2,10 +2,10 @@ import pygame
 import json
 
 def from_json_data(json_data):
-
     tile_type = {
         "blank": Tile,
-        "wall": Wall
+        "wall": Wall,
+        "ground": Ground
     }
 
     data = json.loads(json_data)
@@ -20,13 +20,30 @@ class Tile:
         self.collide = False
 
     def draw(self, game, offset):
-        pygame.draw.rect(game.win, Tile.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size), 1)
+        pygame.draw.rect(game.win, Tile.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size),1)
 
     def to_json_data(self):
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
             "type": "blank"
+            })
+        return json_data
+
+class Ground(Tile):
+    color = (255,248,220)
+    def __init__(self,x,y,size):
+        Tile.__init__(self,x,y,size)
+        self.collide = False
+
+    def draw(self, game, offset):
+        pygame.draw.rect(game.win, Ground.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
+
+    def to_json_data(self):
+        json_data = json.dumps({
+            "x":int(self.x),
+            "y":int(self.y),
+            "type": "ground"
             })
         return json_data
 
