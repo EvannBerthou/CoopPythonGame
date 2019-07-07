@@ -29,6 +29,14 @@ class Tile:
             "type": "blank"
             })
         return json_data
+    
+    #CALLED WHEN A PLAYER GOES ON THIS TILE
+    def on_step(self):
+        pass
+
+    #CALLED WHEN A PLAYER LEAVE THIS TILE
+    def on_leave(self):
+        pass
 
 class Ground(Tile):
     color = (255,248,220)
@@ -47,6 +55,11 @@ class Ground(Tile):
             })
         return json_data
 
+    def on_step(self):
+        print("step on me")
+    def on_leave(self):
+        print("leaving me")
+
 class Wall(Tile):
     color = (255,0,255)
     def __init__(self,x,y,size):
@@ -63,3 +76,9 @@ class Wall(Tile):
             "type": "wall"
             })
         return json_data
+
+    def on_step(self):
+        pass
+
+    def on_leave(self):
+        pass

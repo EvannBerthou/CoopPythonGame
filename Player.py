@@ -22,6 +22,12 @@ class Player:
         tile = self.game.map.map_data.board[next_y][next_x]
         return not tile.collide
 
+    def move(self, new_x, new_y):
+        self.game.map.map_data.board[self.y][self.x].on_leave()
+        self.x = new_x
+        self.y = new_y
+        self.game.map.map_data.board[self.y][self.x].on_step()
+
     def on_key_pressed(self):
         if self.local:
             keyboard_state = pygame.key.get_pressed()
@@ -30,8 +36,7 @@ class Player:
 
             if self.check_border(x_move, y_move):
                 if self.check_collision(x_move, y_move):
-                    self.x += x_move
-                    self.y += y_move
+                    self.move(self.x + x_move, self.y + y_move)
                     self.game.game_socket.send_message("player_sync {} {}".format(self.x, self.y))
 
     def update(self):
