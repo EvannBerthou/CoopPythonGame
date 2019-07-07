@@ -31,6 +31,7 @@ class Map:
                 local_map_hash = hashlib.sha256(f.read().encode()).hexdigest()
                 if local_map_hash == map_hash:
                     self.map_data = MapData.from_file(map_path)
+                    self.is_playing = True
                 else:
                     print("You don't have this map or your map is incompatible")
 
@@ -40,6 +41,7 @@ class Map:
         self.offset = (800 - self.cell_size * self.map_size) / 2 #OFFSET ON EACH SIDE OF THE MAP
         self.map_folder = self.get_map_folder()
         self.map_data = None
+        self.is_playing = False
 
 class MapData:
     def __init__(self, author, board):

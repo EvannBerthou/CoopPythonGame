@@ -10,6 +10,7 @@ class Player:
         self.local = local
 
     def on_key_pressed(self):
+        #GOT PROBLEMS WHEN 2 KEYS ARE PRESSED ON THE SAME FRAME
         if self.local:
             keyboard_state = pygame.key.get_pressed()
             if keyboard_state[K_d]:

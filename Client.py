@@ -51,6 +51,8 @@ class NetworkManger:
 
         if message_name in commands:
             commands[message_name](message_args)
+        else:
+            print("unknown message recieved : {}".format(message_name))
 
     def update_network(self):
         last_message = self.game.game_socket.Listener.get_last_message()

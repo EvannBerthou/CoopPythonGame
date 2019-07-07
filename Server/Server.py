@@ -159,6 +159,10 @@ class Server:
             return map_hash
 
     def load_map(self, args):
+        if len(ClientThread.clients) != 2:
+            self.drawer.addstr("You need to be 2 players in order to play and load a map")
+            return
+
         map_name = args[0]
         map_path = os.path.join(self.map_folder, map_name)
         if os.path.exists(map_path):

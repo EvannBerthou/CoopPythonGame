@@ -14,6 +14,7 @@ class Game:
         self.map = Map.Map()
         self.network_manager = Client.NetworkManger(self)
         self.player = Player.Player(True, self)
+        self.coop_player = Player.Player(False, self)
         self.clock = pygame.time.Clock()
 
     def run(self):
@@ -36,8 +37,9 @@ class Game:
         self.win.fill((0,0,0))
         self.map.draw(self)
 
-        if self.map.map_data: #IF A MAP IS LOADED
+        if self.map.is_playing: #IF A MAP IS LOADED
             self.player.draw()
+            self.coop_player.draw()
 
         pygame.display.update()
 
@@ -52,4 +54,5 @@ game.run()
 
 """
 TODO:
+    Server should refuse connection clients when the number of client == 2
 """
