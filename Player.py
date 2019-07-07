@@ -21,9 +21,14 @@ class Player:
                 self.y -= 1
             if keyboard_state[K_s]:
                 self.y += 1
+            self.game.game_socket.send_message("player_sync {} {}".format(self.x, self.y))
 
     def update(self):
         pass
+
+    def sync(self, args):
+        self.x = int(args[0])
+        self.y = int(args[1])
 
     def draw(self):
         pygame.draw.rect(self.game.win,(255,0,0),(self.x*self.size+self.draw_offset,self.y*self.size+self.draw_offset, self.size, self.size))

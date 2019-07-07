@@ -8,6 +8,9 @@ class GameSocket(Thread):
         connection.connect((ip, port))
         return connection
 
+    def send_message(self, message):
+        self.socket.send(message.encode())
+
     def __init__(self, ip, port):
         self.ip = ip
         self.port = port
@@ -44,16 +47,27 @@ class NetworkManger:
     def eval_message(self, message):
         commands = {
                 "disconnect": self.disconnect,
-                "map_hash": self.game.map.load_map
+                "map_hash": self.game.map.load_map,
+                "player_sync": self.game.coop_player.sync
         }
 
-        message_name = message.split(' ')[0]
-        message_args = message.split(' ')[1:]
+        parts = message.split(' ')
+        message_name = parts[0]
+        message_args = parts[1:]
 
         if message_name in commands:
             commands[message_name](message_args)
+
+        #BACK HACK, WHEN A MESSAGE IS SEND TO THE SERVER FROM A CLIENT, THERE IS THIS IP OF THE CLIENT IN THE MESSAGE
+        #SO I JUST SHIFT ARGS BY 1 TO AVOID GETTING THE IP
+        elif parts[1] in commands:
+            name = parts[1]
+            args = parts[2:]
+            commands[name](args)
         else:
+
             print("unknown message recieved : {}".format(message_name))
+            print(message_args)
 
     def update_network(self):
         last_message = self.game.game_socket.Listener.get_last_message()
