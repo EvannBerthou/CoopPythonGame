@@ -13,7 +13,7 @@ class Game:
 
         self.map = Map.Map()
         self.network_manager = Client.NetworkManger(self)
-        self.player = Player.Player(True, self.map.offset)
+        self.player = Player.Player(True, self)
         self.clock = pygame.time.Clock()
 
     def run(self):
@@ -24,6 +24,10 @@ class Game:
                 if event.type == QUIT:
                     running = False
 
+                if event.type == pygame.KEYDOWN:
+                    if self.map.map_data:
+                        self.player.on_key_pressed()
+
             self.network_manager.update_network()
             self.draw()
         self.close()
@@ -33,7 +37,7 @@ class Game:
         self.map.draw(self)
 
         if self.map.map_data: #IF A MAP IS LOADED
-            self.player.draw(self)
+            self.player.draw()
 
         pygame.display.update()
 
