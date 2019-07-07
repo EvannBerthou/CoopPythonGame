@@ -19,7 +19,7 @@ class Player:
     def check_collision(self, x_move, y_move):
         next_x = self.x + x_move
         next_y = self.y + y_move
-        tile = self.game.map.map_data.board[next_x][next_y]
+        tile = self.game.map.map_data.board[next_y][next_x]
         return not tile.collide
 
     def on_key_pressed(self):
