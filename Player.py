@@ -44,8 +44,7 @@ class Player:
 
     def sync(self, args):
         #Set the position of the coop player
-        self.x = int(args[0])
-        self.y = int(args[1])
+        self.move(int(args[0]), int(args[1]))
 
     def draw(self):
         pygame.draw.rect(self.game.win,(255,0,0),(self.x*self.size+self.draw_offset,self.y*self.size+self.draw_offset, self.size, self.size))
