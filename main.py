@@ -1,5 +1,6 @@
 import Client
 import Map
+import Player
 
 import pygame
 from pygame.locals import *
@@ -12,6 +13,7 @@ class Game:
 
         self.map = Map.Map()
         self.network_manager = Client.NetworkManger(self)
+        self.player = Player.Player(True, self.map.offset)
 
     def run(self):
         running = True
@@ -27,6 +29,10 @@ class Game:
     def draw(self):
         self.win.fill((0,0,0))
         self.map.draw(self)
+
+        if self.map.map_data: #IF A MAP IS LOADED
+            self.player.draw(self)
+
         pygame.display.update()
 
     def close(self):
