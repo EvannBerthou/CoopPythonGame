@@ -5,7 +5,8 @@ def from_json_data(json_data):
     tile_type = {
         "blank": Tile,
         "wall": Wall,
-        "ground": Ground
+        "ground": Ground,
+        "door": Door
     }
 
     data = json.loads(json_data)
@@ -82,3 +83,28 @@ class Wall(Tile):
 
     def on_leave(self):
         pass
+
+class Door(Tile):
+    color = (150,200,180)
+    opened_color = (200,200,180)
+    def __init__(self, x,y,size):
+        Tile.__init__(self, x,y,size)
+        self.collide = False
+    
+    def toggle(self):
+        self.collide = not self.collide
+
+    def draw(self, game, offset):
+        color = Door.opened_color if self.collide else Door.color
+        pygame.draw.rect(game.win, color, (self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
+
+    def to_json_data(self):
+        json_data = json.dumps({
+            "x":int(self.x),
+            "y":int(self.y),
+            "type": "door"
+            })
+        return json_data
+
+    def on_step(self):pass
+    def on_leave(self):pass

@@ -99,7 +99,8 @@ class Game:
         tiles_id = {
             0: Tiles.Tile,
             1: Tiles.Wall,
-            2: Tiles.Ground
+            2: Tiles.Ground,
+            3: Tiles.Door
         }
         start_y = self.grid_size * self.cell_size + self.offset + 16
         
