@@ -1,4 +1,5 @@
 import Client
+import Map
 
 import pygame
 from pygame.locals import *
@@ -18,6 +19,7 @@ class Game:
         self.game_socket = Client.GameSocket("127.0.0.1", 25565)
 
         self.map_folder = self.get_map_folder()
+        self.map = Map.Map(self.map_folder)
 
     def run(self):
         running = True
@@ -62,6 +64,7 @@ class Game:
 
     def draw(self):
         self.win.fill((0,0,0))
+        self.map.draw(self)
         pygame.display.update()
 
     def close(self):

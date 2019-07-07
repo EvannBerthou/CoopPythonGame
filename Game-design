@@ -2,10 +2,7 @@
 
 Game:
     800x800 window (?)
-    32x32 sprites
-
-    288 pixels are outisde the game board (144 on each sides):
-        Can be used for UI?
+    48x48 sprites (?)
 
 Gameplay:
     2 players:
@@ -53,3 +50,11 @@ Map:
                     Right map
                 Else:
                     Wrong map
+
+    Map Data:
+        Author
+        Board:
+            2d array with data of every tiles:
+                x,y position
+                type (door, switch...)
+                default status (door opened, door closed, switch on, switch off...)
