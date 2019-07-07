@@ -65,7 +65,7 @@ class ServerDrawer(Thread):
         self.stdscr.clrtoeol()
 
     def draw_input(self):
-        self.stdscr.addstr(self.current_input)
+        self.stdscr.addstr("-> {}".format(self.current_input))
 
     def send_command(self):
         self.addstr(self.current_input)
@@ -73,6 +73,13 @@ class ServerDrawer(Thread):
         self.current_input = ""
         self.clear_input()
         self.stdscr.move(self.current_row, 0)
+        self.draw_input()
+
+    def clear_screen(self, *args):
+        self.current_row = 0
+        self.stdscr.move(0,0)
+        self.stdscr.clrtobot()
+        self.draw_input()
 
     def run(self):
         while self.running:
@@ -133,7 +140,8 @@ class Server:
     def command(self, command):
         commands = {
                 "quit": self.CloseServer,
-                "load_map": self.load_map
+                "load_map": self.load_map,
+                "clear": self.drawer.clear_screen
         }
 
         command_name = command.split(' ')[0]
