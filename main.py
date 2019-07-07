@@ -6,10 +6,18 @@ import hashlib
 import os
 
 class Game:
+    def get_map_folder(self):
+        asset_folder = os.path.join(os.path.dirname(__file__), "assets")
+        map_folder = os.path.join(asset_folder, "maps")
+        abs_map_folder = os.path.abspath(map_folder)
+        return abs_map_folder
+
     def __init__(self,w,h):
         self.w,self.h = w,h
         self.win = pygame.display.set_mode((self.w,self.h))
         self.game_socket = Client.GameSocket("127.0.0.1", 25565)
+
+        self.map_folder = self.get_map_folder()
 
     def run(self):
         running = True
@@ -25,13 +33,9 @@ class Game:
     def load_new_map(self, args):
         map_name = args[0]
         map_hash = args[1]
-        asset_folder = os.path.join(os.path.dirname(__file__), "assets")
-        map_folder = os.path.join(asset_folder, "maps")
-        abs_map_folder = os.path.abspath(map_folder)
-        files = os.listdir(map_folder)
+        map_path = os.path.join(self.map_folder, map_name)
 
-        if map_name in files:
-            map_path = os.path.join(abs_map_folder, map_name)
+        if os.path.exists(map_path):
             with open(map_path, 'r') as f:
                 local_map_hash = hashlib.sha256(f.read().encode()).hexdigest()
                 if local_map_hash == map_hash:

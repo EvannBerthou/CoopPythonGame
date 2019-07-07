@@ -89,6 +89,13 @@ class ServerDrawer(Thread):
         curses.endwin()
 
 class Server:
+    def get_map_folder_path(self):
+        parent_folder = os.path.join(os.path.dirname(__file__), "..")
+        asset_folder = os.path.join(parent_folder, "assets")
+        map_folder = os.path.join(asset_folder, "maps")
+        abs_map_folder = os.path.abspath(map_folder)
+        return abs_map_folder
+
     def initialize_socket(self):
         s= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind(('', self.port))
@@ -101,6 +108,8 @@ class Server:
         self.port = port
         self.socket = self.initialize_socket()
         self.running = True
+
+        self.map_folder = self.get_map_folder_path()
 
     def run(self):
         while self.running:
@@ -135,12 +144,6 @@ class Server:
         elif command != "":
             self.drawer.addstr("Invalid command")
 
-    def get_map_folder(self):
-        parent_folder = os.path.join(os.path.dirname(__file__), "..")
-        asset_folder = os.path.join(parent_folder, "assets")
-        map_folder = os.path.join(asset_folder, "maps")
-        abs_map_folder = os.path.abspath(map_folder)
-        return abs_map_folder
 
     def hash_map(self, map_path):
         with open(map_path, 'r') as f:
@@ -149,11 +152,8 @@ class Server:
 
     def load_map(self, args):
         map_name = args[0]
-        map_folder = self.get_map_folder()
-        files = os.listdir(map_folder)
-        if map_name in files:
-            self.drawer.addstr("Loading map {}".format(map_name))
-            map_path = os.path.join(map_folder, map_name)
+        map_path = os.path.join(self.map_folder, map_name)
+        if os.path.exists(map_path):
             map_hash = self.hash_map(map_path)
             self.drawer.addstr("Map hash: {}".format(map_hash))
             self.send_message_to_all_client("map_hash {} {}".format(map_name, map_hash))
