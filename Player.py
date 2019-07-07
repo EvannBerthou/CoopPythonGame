@@ -9,24 +9,27 @@ class Player:
         self.draw_offset = game.map.offset
         self.local = local
 
+    def check_border(self, x_move, y_move):
+        if self.x + x_move < 0 or self.x + x_move >= 16: return False
+        if self.y + y_move < 0 or self.y + y_move >= 16: return False
+        return True
+
     def on_key_pressed(self):
-        #GOT PROBLEMS WHEN 2 KEYS ARE PRESSED ON THE SAME FRAME
         if self.local:
             keyboard_state = pygame.key.get_pressed()
-            if keyboard_state[K_d]:
-                self.x += 1
-            if keyboard_state[K_a]:
-                self.x -= 1
-            if keyboard_state[K_w]:
-                self.y -= 1
-            if keyboard_state[K_s]:
-                self.y += 1
-            self.game.game_socket.send_message("player_sync {} {}".format(self.x, self.y))
+            x_move = keyboard_state[K_d] - keyboard_state[K_a]
+            y_move = keyboard_state[K_s] - keyboard_state[K_w]
+
+            if self.check_border(x_move, y_move):
+                self.x += x_move
+                self.y += y_move
+                self.game.game_socket.send_message("player_sync {} {}".format(self.x, self.y))
 
     def update(self):
         pass
 
     def sync(self, args):
+        #Set the position of the coop player
         self.x = int(args[0])
         self.y = int(args[1])
 
