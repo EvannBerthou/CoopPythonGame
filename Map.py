@@ -11,9 +11,19 @@ class Map:
         abs_map_folder = os.path.abspath(map_folder)
         return abs_map_folder
 
+    #TEMP FUNCTION UNTIL MAP CREATOR IS DONE
     def create_board(self):
+        from random import randint
+        board = [[0 for x in range(self.map_size)] for y in range(self.map_size)]
         offset = self.offset / self.cell_size
-        return [[Tiles.Tile(x + offset,y + offset, self.cell_size) for x in range(self.map_size)] for y in range(self.map_size)]
+        for i in range(16):
+            for j in range(16):
+                v = randint(0,1)
+                if v == 0:
+                    board[i][j] = Tiles.Tile(i,j, 48)
+                elif v == 1:
+                    board[i][j] = Tiles.Wall(i,j, 48)
+        return board
 
     def draw(self, game):
         if self.map_data:
@@ -42,6 +52,9 @@ class Map:
         self.map_folder = self.get_map_folder()
         self.map_data = None
         self.is_playing = False
+
+        # self.md = MapData("author", self.create_board())
+        # self.md.save_map()
 
 class MapData:
     def __init__(self, author, board):

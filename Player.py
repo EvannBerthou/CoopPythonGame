@@ -8,11 +8,19 @@ class Player:
         self.size = game.map.cell_size
         self.draw_offset = game.map.offset
         self.local = local
-
+    
+    #check if the next position is outside the game board
     def check_border(self, x_move, y_move):
         if self.x + x_move < 0 or self.x + x_move >= 16: return False
         if self.y + y_move < 0 or self.y + y_move >= 16: return False
         return True
+
+    #check if the next position is inside a tile which blocks collision
+    def check_collision(self, x_move, y_move):
+        next_x = self.x + x_move
+        next_y = self.y + y_move
+        tile = self.game.map.map_data.board[next_x][next_y]
+        return not tile.collide
 
     def on_key_pressed(self):
         if self.local:
@@ -21,9 +29,10 @@ class Player:
             y_move = keyboard_state[K_s] - keyboard_state[K_w]
 
             if self.check_border(x_move, y_move):
-                self.x += x_move
-                self.y += y_move
-                self.game.game_socket.send_message("player_sync {} {}".format(self.x, self.y))
+                if self.check_collision(x_move, y_move):
+                    self.x += x_move
+                    self.y += y_move
+                    self.game.game_socket.send_message("player_sync {} {}".format(self.x, self.y))
 
     def update(self):
         pass
