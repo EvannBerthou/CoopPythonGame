@@ -47,6 +47,8 @@ class Game:
         self.toolbar = self.create_toolbar()
         self.selected_button = self.toolbar[0]
 
+        self.last_plate = None
+
     def run(self):
         while self.running:
             for event in pygame.event.get():
@@ -78,7 +80,16 @@ class Game:
                     self.selected_button = btn
                     btn.selected = True
         else:
-            self.board[board_y][board_x] = self.selected_button.tile(board_x, board_y, self.cell_size)
+            #TEMPORARY: only for tests
+            self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
+            tile = self.board[board_y][board_x] 
+            if isinstance(tile, Tiles.Pressure_plate):
+                self.last_plate = self.board[board_y][board_x]
+            elif isinstance(tile, Tiles.Door):
+                tile = self.board[board_y][board_x]
+                door_pos = self.last_plate.get_linked_door_pos({"linked_door_x": tile.x, "linked_door_y": tile.y})
+                door = self.board[door_pos[1]][door_pos[0]]
+                self.last_plate.link_to_door(door)
         
 
     def draw(self):
@@ -88,7 +99,7 @@ class Game:
         pygame.display.update()
 
     def create_board(self):
-        return [[Tiles.Tile(i,j,self.cell_size) for i in range(self.grid_size)] for j in range(self.grid_size)]
+        return [[Tiles.Tile({"x":i,"y":j}) for i in range(self.grid_size)] for j in range(self.grid_size)]
 
     def draw_grid(self):
         for i in range(self.grid_size):
@@ -100,7 +111,8 @@ class Game:
             0: Tiles.Tile,
             1: Tiles.Wall,
             2: Tiles.Ground,
-            3: Tiles.Door
+            3: Tiles.Door,
+            4: Tiles.Pressure_plate
         }
         start_y = self.grid_size * self.cell_size + self.offset + 16
         

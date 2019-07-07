@@ -53,9 +53,6 @@ class Map:
         self.map_data = None
         self.is_playing = False
 
-        # self.md = MapData("author", self.create_board())
-        # self.md.save_map()
-
 class MapData:
     def __init__(self, author, board):
         self.author = author
@@ -75,6 +72,15 @@ class MapData:
             for i in range(16): #x
                 for j in range(16): #y
                     board[i][j] = Tiles.from_json_data(board_data[i][j])
+
+            #LINKED PRESSURE PLATES TO DOORS AFTER ALL TILES ARE PLACED ON THE BOARD
+            for i in range(16):
+                for j in range(16):
+                    tile = board[i][j]
+                    if isinstance(tile, Tiles.Pressure_plate):
+                        if tile.linked_door_pos != (-1,-1):
+                            door = board[tile.linked_door_pos[1]][tile.linked_door_pos[0]]
+                            tile.link_to_door(door)
 
             print("Map loaded")
             

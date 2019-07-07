@@ -1,6 +1,7 @@
 import Client
 import Map
 import Player
+import Tiles
 
 import pygame
 from pygame.locals import *
