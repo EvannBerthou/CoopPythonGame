@@ -18,11 +18,13 @@ class Game:
         self.player = Player.Player(True, self)
         self.coop_player = Player.Player(False, self)
         self.clock = pygame.time.Clock()
+        self.tick = 0.0
 
     def run(self):
         running = True
-        dt = self.clock.tick(60) / 1000
         while running:
+            dt = self.clock.tick(60)
+            self.tick += dt
             for event in pygame.event.get():
                 if event.type == QUIT:
                     running = False
@@ -32,13 +34,18 @@ class Game:
                         self.player.on_key_pressed()
 
             self.network_manager.update_network()
+            self.update()
             self.draw()
         self.close()
+
+    def update(self):
+        if self.tick >= 500:
+            self.player.update()
+            self.tick = 0
 
     def draw(self):
         self.win.fill((0,0,0))
         self.map.draw(self)
-
         if self.map.is_playing: #IF A MAP IS LOADED
             self.player.draw()
             self.coop_player.draw()
