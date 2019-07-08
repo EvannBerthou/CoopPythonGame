@@ -16,7 +16,7 @@ def from_json_data(json_data):
 
 class Tile:
     color = (255,255,255)
-    type = "blank"
+    tile_type = "blank"
     def __init__(self, data):
         self.x,self.y = data["x"], data["y"]
         self.size = 48
@@ -29,7 +29,7 @@ class Tile:
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": Tile.type
+            "type": Tile.tile_type
             })
         return json_data
     
@@ -43,7 +43,7 @@ class Tile:
 
 class Ground(Tile):
     color = (255,248,220)
-    type = "ground"
+    tile_type = "ground"
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = False
@@ -55,7 +55,7 @@ class Ground(Tile):
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": Ground.type
+            "type": Ground.tile_type
             })
         return json_data
 
@@ -66,7 +66,7 @@ class Ground(Tile):
 
 class Wall(Tile):
     color = (255,0,255)
-    type = "wall"
+    tile_type = "wall"
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = True
@@ -78,7 +78,7 @@ class Wall(Tile):
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": Wall.type
+            "type": Wall.tile_type
             })
         return json_data
 
@@ -89,25 +89,27 @@ class Wall(Tile):
         pass
 
 class Door(Tile):
-    color = (150,200,180)
-    opened_color = (200,200,180)
-    type = "door"
+    color = (255,0,0)
+    opened_color = (0,255,0)
+    tile_type = "door"
     def __init__(self,data):
         Tile.__init__(self,data)
-        self.collide = False
+        self.collide = data["default"] if "default" in data else True
     
     def toggle(self):
+        print(self.collide, not self.collide)
         self.collide = not self.collide
 
     def draw(self, game, offset):
-        color = Door.opened_color if self.collide else Door.color
+        color = Door.color if self.collide else Door.opened_color
         pygame.draw.rect(game.win, color, (self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
 
     def to_json_data(self):
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": Door.type
+            "type": Door.tile_type,
+            "default": int(self.collide)
             })
         return json_data
 
@@ -116,7 +118,7 @@ class Door(Tile):
 
 class Pressure_plate(Tile):
     color = (0,255,150)
-    type = "plate"
+    tile_type = "plate"
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = False
@@ -142,7 +144,7 @@ class Pressure_plate(Tile):
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": Pressure_plate.type,
+            "type": Pressure_plate.tile_type,
             "linked_door_x": self.linked_door.x if self.linked_door else -1,
             "linked_door_y": self.linked_door.y if self.linked_door else -1
             })

@@ -99,7 +99,7 @@ class Game:
                     if self.selected_button: self.selected_button.selected = False
                     self.selected_button = btn
                     btn.selected = True
-                    self.info_text.set_text("{} tile selected".format(btn.tile.type))
+                    self.info_text.set_text("{} tile selected".format(btn.tile.tile_type))
         else:
             if self.linking: #TO BE MOVED INTO ANOTHER FUNCTION
                 tile = self.board[board_y][board_x] 
@@ -113,7 +113,9 @@ class Game:
                 self.linking = False
                 return
 
-            self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
+            if not isinstance(self.board[board_y][board_x], self.selected_button.tile):
+                self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
+
             tile = self.board[board_y][board_x] 
 
             #HANDLE SPECIAL TILES IN ANOTHER FUNCTION
@@ -121,6 +123,9 @@ class Game:
                 self.selected_plate = tile
                 self.linking = True
                 self.info_text.set_text("Click on the door you want the plate to be linked to")
+
+            if isinstance(tile, Tiles.Door):
+                tile.toggle()
 
     def link_plate_to_door(self, plate, door):
         door_pos = (door.x, door.y)
