@@ -6,6 +6,8 @@ import curses
 import os
 import hashlib
 import time
+import sys
+import struct
 
 class ClientThread(Thread):
     clients = []
@@ -29,12 +31,15 @@ class ClientThread(Thread):
                 if r.strip(' ') != "" and r != "stop":
                     for client in ClientThread.clients:
                         if client is not self:
-                            client.socket.send("{}".format(r).encode())#RENVOIE LE MESSAGE A TOUS LES AUTRES CLIENTS
-
+                            client.sendall(r)
                 else:
                     self.drawer.addstr("[-] Déconnexion du client {}:{}".format(self.ip, self.port))
                     ClientThread.clients.remove(self)
                     self.running = False
+
+    def sendall(self, data):
+        data = struct.pack('>I', len(data)) + data.encode()
+        self.socket.sendall(data)
 
 class ServerDrawer(Thread):
     def __init__(self, server):
@@ -204,7 +209,7 @@ class Server:
 
     def send_message_to_all_client(self, message):
         for client in ClientThread.clients:
-            client.socket.send(message.encode())
+            client.sendall(message)
 
 
 parser = argparse.ArgumentParser(description="Server")

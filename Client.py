@@ -1,6 +1,8 @@
 from threading import Thread
 import socket
 import select
+import sys
+import struct
 
 class GameSocket(Thread):
     def create_socket(self, ip, port):
@@ -25,14 +27,31 @@ class Listener(Thread):
         self.running = True
         Thread.__init__(self)
         self.last_messages = []
+        self.data_size = 0
+
+    def recv(self):
+        raw_data_size = self.recvall(4)
+        if raw_data_size:
+            data_size = struct.unpack('>I', raw_data_size)[0]
+            return self.recvall(data_size).decode()
+
+    def recvall(self, size):
+        data = b''
+        while len(data) < size:
+            packet = self.socket.recv(size - len(data))
+            if not packet:
+                return None
+            data += packet
+        return data
+
 
     def run(self):
         while self.running:
             ready = select.select([self.socket], [], [], 0.05)
             if ready[0]:
-                recieved = self.socket.recv(2048).decode()
-                if recieved:
-                    self.last_messages.append(recieved)
+                data = self.recv()
+                if data:
+                    self.last_messages.append(data)
 
     def get_last_message(self):
         if len(self.last_messages) > 0:
