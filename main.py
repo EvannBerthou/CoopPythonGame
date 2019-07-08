@@ -39,7 +39,7 @@ class Game:
         self.close()
 
     def update(self):
-        if self.tick >= 10:
+        if self.tick >= 1000:
             self.player.update()
             self.tick = 0
 

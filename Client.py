@@ -1,6 +1,8 @@
 from threading import Thread
 import socket
 import select
+import sys
+import struct
 
 class GameSocket(Thread):
     def create_socket(self, ip, port):
@@ -9,7 +11,7 @@ class GameSocket(Thread):
         return connection
 
     def send_message(self, message):
-        self.socket.send(message.encode())
+        self.socket.sendall(message.encode())
 
     def __init__(self, ip, port):
         self.ip = ip
@@ -25,18 +27,34 @@ class Listener(Thread):
         self.running = True
         Thread.__init__(self)
         self.last_messages = []
+        self.data_size = 0
+
+    def recv(self):
+        raw_data_size = self.recvall(4)
+        if raw_data_size:
+            data_size = struct.unpack('>I', raw_data_size)[0]
+            return self.recvall(data_size).decode()
+
+    def recvall(self, size):
+        data = b''
+        while len(data) < size:
+            packet = self.socket.recv(size - len(data))
+            if not packet:
+                return None
+            data += packet
+        return data
+
 
     def run(self):
         while self.running:
             ready = select.select([self.socket], [], [], 0.05)
             if ready[0]:
-                recieved = self.socket.recv(4096).decode()
-                if recieved:
-                    self.last_messages.append(recieved)
+                data = self.recv()
+                if data:
+                    self.last_messages.append(data)
 
     def get_last_message(self):
         if len(self.last_messages) > 0:
-            print(self.last_messages)
             last_message = self.last_messages[-1]
             self.last_messages.remove(self.last_messages[-1])
             return last_message
@@ -58,18 +76,9 @@ class NetworkManger:
 
         if message_name in commands:
             commands[message_name](message_args)
-
-        #TODO: FIND A BETTER WAY
-        #BACK HACK, WHEN A MESSAGE IS SEND TO THE SERVER FROM A CLIENT, THERE IS THIS IP OF THE CLIENT IN THE MESSAGE
-        #SO I JUST SHIFT ARGS BY 1 TO AVOID GETTING THE IP
-        elif parts[1] in commands:
-            name = parts[1]
-            args = parts[2:]
-            commands[name](args)
-        else:
-
-            print("unknown message recieved : {}".format(message_name))
-            print(message_args)
+        # else:
+            # print("unknown message recieved : {}".format(message_name))
+            # print(message_args)
 
     def update_network(self):
         last_message = self.game.game_socket.Listener.get_last_message()
