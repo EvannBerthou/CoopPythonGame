@@ -5,6 +5,21 @@ import argparse
 import pygame
 from pygame.locals import *
 
+pygame.init()
+
+class Info_Text:
+    def __init__(self, x,y, font_size):
+        self.x, self.y = x,y
+        self.font = pygame.font.SysFont("Arial", font_size)
+        self.set_text("Info text")
+
+    def set_text(self, text):
+        self.text_to_render = self.font.render(text, 1, (255,255,255))
+
+    def draw(self, game):
+        game.win.blit(self.text_to_render, (self.x, self.y))
+        
+
 class Button:
     def __init__(self, x,y,size,tile):
         self.x,self.y = x,y
@@ -49,6 +64,8 @@ class Game:
 
         self.last_plate = None
 
+        self.info_text = Info_Text(self.offset, self.h - 50, 32)
+
     def run(self):
         while self.running:
             for event in pygame.event.get():
@@ -90,12 +107,14 @@ class Game:
                 door_pos = self.last_plate.get_linked_door_pos({"linked_door_x": tile.x, "linked_door_y": tile.y})
                 door = self.board[door_pos[1]][door_pos[0]]
                 self.last_plate.link_to_door(door)
+                self.info_text.set_text("Plate linked to door")
         
 
     def draw(self):
         self.win.fill((0,0,0))
         self.draw_grid()
         self.draw_toolbar()
+        self.info_text.draw(self)
         pygame.display.update()
 
     def create_board(self):
@@ -151,7 +170,7 @@ class Game:
             return board
 
     def save_map(self):
-        print("saving map")
+        self.info_text.set_text("Saving map...")
         import json
         tiles_data = [[0 for _ in range(16)] for _ in range(16)]
         for i in range(16):
@@ -163,12 +182,12 @@ class Game:
         with open(file_path, 'w') as f:
             f.write(json_data)
 
-        print("map saved")
+        self.info_text.set_text("Map saved")
     
 
 parser = argparse.ArgumentParser(description="Map Creator")
 parser.add_argument('--name', type=str,default="map",help='the name of the map')
 args = parser.parse_args()
 
-game = Game(800,850, args.name)
+game = Game(800,900, args.name)
 game.run()
