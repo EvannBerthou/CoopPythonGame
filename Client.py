@@ -62,12 +62,14 @@ class Listener(Thread):
 class NetworkManger:
     def __init__(self, game):
         self.game = game
+        self.game_id = -1
 
     def eval_message(self, message):
         commands = {
                 "disconnect": self.disconnect,
                 "map_hash": self.game.map.load_map,
-                "player_sync": self.game.coop_player.sync
+                "player_sync": self.sync_player,
+                "game_id": self.set_game_id
         }
 
         parts = message.split(' ')
@@ -84,6 +86,16 @@ class NetworkManger:
         last_message = self.game.game_socket.Listener.get_last_message()
         if last_message:
             self.eval_message(last_message)
+
+    def set_game_id(self, args):
+        self.game_id = int(args[0])
+        self.game.team = "RED" if self.game_id == 1 else "BLUE"
+        print(self.game_id)
+        print(self.game.team)
+
+    def sync_player(self, args):
+        if self.game.coop_player:
+            self.game.coop_player.sync(args)
 
     def disconnect(self, reason):
         reason = " ".join(reason)

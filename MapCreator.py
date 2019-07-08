@@ -127,6 +127,9 @@ class Game:
             if isinstance(tile, Tiles.Door):
                 tile.toggle()
 
+            if isinstance(tile, Tiles.Starting_tile):
+                tile.toggle()
+
     def link_plate_to_door(self, plate, door):
         door_pos = (door.x, door.y)
         door = self.board[door_pos[1]][door_pos[0]]
@@ -141,7 +144,7 @@ class Game:
         pygame.display.update()
 
     def create_board(self):
-        return [[Tiles.Tile({"x":i,"y":j}) for i in range(self.grid_size)] for j in range(self.grid_size)]
+        return [[Tiles.Empty({"x":i,"y":j}) for i in range(self.grid_size)] for j in range(self.grid_size)]
 
     def draw_grid(self):
         for i in range(self.grid_size):
@@ -150,11 +153,12 @@ class Game:
 
     def create_toolbar(self):
         tiles_id = {
-            0: Tiles.Tile,
+            0: Tiles.Empty,
             1: Tiles.Wall,
             2: Tiles.Ground,
             3: Tiles.Door,
-            4: Tiles.Pressure_plate
+            4: Tiles.Pressure_plate,
+            5: Tiles.Starting_tile
         }
         start_y = self.grid_size * self.cell_size + self.offset + 16
         

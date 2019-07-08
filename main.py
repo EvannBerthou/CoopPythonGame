@@ -13,10 +13,13 @@ class Game:
         self.win = pygame.display.set_mode((self.w,self.h))
         self.game_socket = Client.GameSocket(args.ip, args.port)
 
-        self.map = Map.Map()
+        self.map = Map.Map(self)
         self.network_manager = Client.NetworkManger(self)
-        self.player = Player.Player(True, self)
-        self.coop_player = Player.Player(False, self)
+
+        self.team = None
+        self.player = None
+        self.coop_player = None
+
         self.clock = pygame.time.Clock()
         self.tick = 0.0
 
@@ -40,7 +43,8 @@ class Game:
 
     def update(self):
         if self.tick >= 1000:
-            self.player.update()
+            if self.map.is_playing:
+                self.player.update()
             self.tick = 0
 
     def draw(self):

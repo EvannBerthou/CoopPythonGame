@@ -22,6 +22,7 @@ class ClientThread(Thread):
         self.drawer.addstr("[+] Nouveau Thread pour le client {}:{}".format(self.ip, self.port))
         ClientThread.clients.append(self)
         self.drawer.addstr("[!] {} clients connectés".format(len(ClientThread.clients)))
+        self.sendall("game_id {}".format(len(ClientThread.clients)))
 
     def run(self):
         while self.running:

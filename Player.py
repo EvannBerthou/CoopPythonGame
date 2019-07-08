@@ -2,9 +2,9 @@ import pygame
 from pygame.locals import *
 
 class Player:
-    def __init__(self, local, game):
+    def __init__(self, local, game, starting_pos):
         self.game = game
-        self.x, self.y = 0,0
+        self.x, self.y = starting_pos[0], starting_pos[1]
         self.size = game.map.cell_size
         self.draw_offset = game.map.offset
         self.local = local

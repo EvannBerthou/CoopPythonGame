@@ -1,5 +1,7 @@
-import pygame
+import Player
 import Tiles
+
+import pygame
 import os
 import hashlib
 
@@ -10,20 +12,6 @@ class Map:
         map_folder = os.path.join(asset_folder, "maps")
         abs_map_folder = os.path.abspath(map_folder)
         return abs_map_folder
-
-    #TEMP FUNCTION UNTIL MAP CREATOR IS DONE
-    def create_board(self):
-        from random import randint
-        board = [[0 for x in range(self.map_size)] for y in range(self.map_size)]
-        offset = self.offset / self.cell_size
-        for i in range(16):
-            for j in range(16):
-                v = randint(0,1)
-                if v == 0:
-                    board[i][j] = Tiles.Tile(i,j, 48)
-                elif v == 1:
-                    board[i][j] = Tiles.Wall(i,j, 48)
-        return board
 
     def draw(self, game):
         if self.map_data:
@@ -42,10 +30,19 @@ class Map:
                 if local_map_hash == map_hash:
                     self.map_data = MapData.from_file(map_path)
                     self.is_playing = True
+                    self.create_player()
                 else:
                     print("You don't have this map or your map is incompatible")
+    
+    def create_player(self):
+        if self.game.team == "RED":
+            self.game.player      = Player.Player(True, self.game, self.game.map.map_data.starting_red)
+            self.game.coop_player = Player.Player(True, self.game, self.game.map.map_data.starting_blue)
+        else:
+            self.game.player      = Player.Player(True, self.game, self.game.map.map_data.starting_blue)
+            self.game.coop_player = Player.Player(True, self.game, self.game.map.map_data.starting_red)
 
-    def __init__(self):
+    def __init__(self, game):
         self.map_size = 16
         self.cell_size = 48
         self.offset = (800 - self.cell_size * self.map_size) / 2 #OFFSET ON EACH SIDE OF THE MAP
@@ -53,10 +50,14 @@ class Map:
         self.map_data = None
         self.is_playing = False
 
+        self.game = game
+
 class MapData:
-    def __init__(self, author, board):
+    def __init__(self, author, board, starting_red, starting_blue):
         self.author = author
         self.board = board
+        self.starting_red  = starting_red
+        self.starting_blue = starting_blue
 
     def from_file(path):
         import json
@@ -66,6 +67,8 @@ class MapData:
             
             author = data["author"]
             board_data = data["board"]
+            starting_red  = (0,0)
+            starting_blue = (0,0)
             
             board = [[0 for _ in range(16)] for _ in range(16)]
 
@@ -83,9 +86,14 @@ class MapData:
                             door = board[tile.linked_door_pos[1]][tile.linked_door_pos[0]]
                             tile.link_to_door(door)
 
+                    if isinstance(tile, Tiles.Starting_tile):
+                        if tile.team == "RED":
+                            starting_red = (tile.x, tile.y)
+                        elif tile.team == "BLUE":
+                            starting_blue = (tile.x, tile.y)
+
             print("Map loaded")
-            
-            return MapData(author, board)
+            return MapData(author, board, starting_red, starting_blue)
 
     def save_map(self):
         import json
