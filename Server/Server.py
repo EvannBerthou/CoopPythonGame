@@ -25,7 +25,7 @@ class ClientThread(Thread):
         while self.running:
             ready = select.select([self.socket], [], [], 0.05)
             if ready[0]:
-                r = self.socket.recv(4096).decode()
+                r = self.socket.recv(2048).decode()
                 if r.strip(' ') != "" and r != "stop":
                     for client in ClientThread.clients:
                         if client is not self:

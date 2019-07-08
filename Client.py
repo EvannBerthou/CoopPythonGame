@@ -30,7 +30,7 @@ class Listener(Thread):
         while self.running:
             ready = select.select([self.socket], [], [], 0.05)
             if ready[0]:
-                recieved = self.socket.recv(4096).decode()
+                recieved = self.socket.recv(2048).decode()
                 if recieved:
                     self.last_messages.append(recieved)
 
