@@ -97,7 +97,6 @@ class Door(Tile):
         self.collide = data["default"] if "default" in data else True
     
     def toggle(self):
-        print(self.collide, not self.collide)
         self.collide = not self.collide
 
     def draw(self, game, offset):

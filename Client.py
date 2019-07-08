@@ -9,7 +9,7 @@ class GameSocket(Thread):
         return connection
 
     def send_message(self, message):
-        self.socket.send(message.encode())
+        self.socket.sendall(message.encode())
 
     def __init__(self, ip, port):
         self.ip = ip
@@ -32,11 +32,11 @@ class Listener(Thread):
             if ready[0]:
                 recieved = self.socket.recv(4096).decode()
                 if recieved:
+                    print(recieved)
                     self.last_messages.append(recieved)
 
     def get_last_message(self):
         if len(self.last_messages) > 0:
-            print(self.last_messages)
             last_message = self.last_messages[-1]
             self.last_messages.remove(self.last_messages[-1])
             return last_message
@@ -58,16 +58,7 @@ class NetworkManger:
 
         if message_name in commands:
             commands[message_name](message_args)
-
-        #TODO: FIND A BETTER WAY
-        #BACK HACK, WHEN A MESSAGE IS SEND TO THE SERVER FROM A CLIENT, THERE IS THIS IP OF THE CLIENT IN THE MESSAGE
-        #SO I JUST SHIFT ARGS BY 1 TO AVOID GETTING THE IP
-        elif parts[1] in commands:
-            name = parts[1]
-            args = parts[2:]
-            commands[name](args)
         else:
-
             print("unknown message recieved : {}".format(message_name))
             print(message_args)
 

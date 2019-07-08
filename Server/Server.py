@@ -29,7 +29,7 @@ class ClientThread(Thread):
                 if r.strip(' ') != "" and r != "stop":
                     for client in ClientThread.clients:
                         if client is not self:
-                            client.socket.send("{}:{} {}".format(self.ip,self.port,r).encode())#RENVOIE LE MESSAGE A TOUS LES AUTRES CLIENTS
+                            client.socket.sendall("{}".format(r).encode())#RENVOIE LE MESSAGE A TOUS LES AUTRES CLIENTS
 
                 else:
                     self.drawer.addstr("[-] Déconnexion du client {}:{}".format(self.ip, self.port))
@@ -133,7 +133,7 @@ class Server:
 
                 if len(ClientThread.clients) > 2:
                     for client in ClientThread.clients[2:]: #from 3rd to last client in the list
-                        client.socket.send("disconnect There is already 2 player in the game".encode())
+                        client.socket.sendall("disconnect There is already 2 player in the game".encode())
                         client.socket.close()
 
     def CloseServer(self, *args):
