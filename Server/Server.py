@@ -150,6 +150,7 @@ class Server:
         self.drawer.running = False
         self.running = False
         for client in ClientThread.clients:
+            client.sendall("disconnect Server closing")
             client.running = False
         self.socket.close()
     
