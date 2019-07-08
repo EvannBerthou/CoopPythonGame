@@ -62,9 +62,10 @@ class Game:
         self.toolbar = self.create_toolbar()
         self.selected_button = self.toolbar[0]
 
-        self.last_plate = None
+        self.selected_plate = None
+        self.linking = False
 
-        self.info_text = Info_Text(self.offset, self.h - 50, 32)
+        self.info_text = Info_Text(self.offset, self.h - 50, 24)
 
     def run(self):
         while self.running:
@@ -73,10 +74,11 @@ class Game:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
                     self.on_key_pressed()
-            
-            if pygame.mouse.get_pressed()[0]:
-                self.on_click()
-
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if pygame.mouse.get_pressed()[0]:
+                        self.on_click()
+                if pygame.mouse.get_pressed()[2]:
+                    self.on_click()
             self.draw()
         pygame.quit()
 
@@ -93,22 +95,38 @@ class Game:
         if board_x < 0 or board_x >= 16 or board_y < 0 or board_y >= 16: #IF OUTISDE THE BOARD
             for btn in self.toolbar:
                 if btn.is_clicked():
+                    self.linking = False
                     if self.selected_button: self.selected_button.selected = False
                     self.selected_button = btn
                     btn.selected = True
+                    self.info_text.set_text("{} tile selected".format(btn.tile.type))
         else:
-            #TODO: TEMPORARY: only for tests
+            if self.linking: #TO BE MOVED INTO ANOTHER FUNCTION
+                tile = self.board[board_y][board_x] 
+
+                if isinstance(tile, Tiles.Door):
+                    self.link_plate_to_door(self.selected_plate, tile)
+                    self.info_text.set_text("Plate linked to door")
+                else:
+                    self.info_text.set_text("Can't link plate to door")
+
+                self.linking = False
+                return
+
             self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
             tile = self.board[board_y][board_x] 
+
+            #HANDLE SPECIAL TILES IN ANOTHER FUNCTION
             if isinstance(tile, Tiles.Pressure_plate):
-                self.last_plate = self.board[board_y][board_x]
-            elif isinstance(tile, Tiles.Door):
-                tile = self.board[board_y][board_x]
-                door_pos = self.last_plate.get_linked_door_pos({"linked_door_x": tile.x, "linked_door_y": tile.y})
-                door = self.board[door_pos[1]][door_pos[0]]
-                self.last_plate.link_to_door(door)
-                self.info_text.set_text("Plate linked to door")
-        
+                self.selected_plate = tile
+                self.linking = True
+                self.info_text.set_text("Click on the door you want the plate to be linked to")
+
+    def link_plate_to_door(self, plate, door):
+        door_pos = (door.x, door.y)
+        door = self.board[door_pos[1]][door_pos[0]]
+        self.selected_plate.link_to_door(door)
+        self.info_text.set_text("Plate linked to door")
 
     def draw(self):
         self.win.fill((0,0,0))

@@ -16,6 +16,7 @@ def from_json_data(json_data):
 
 class Tile:
     color = (255,255,255)
+    type = "blank"
     def __init__(self, data):
         self.x,self.y = data["x"], data["y"]
         self.size = 48
@@ -28,7 +29,7 @@ class Tile:
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": "blank"
+            "type": Tile.type
             })
         return json_data
     
@@ -42,6 +43,7 @@ class Tile:
 
 class Ground(Tile):
     color = (255,248,220)
+    type = "ground"
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = False
@@ -53,7 +55,7 @@ class Ground(Tile):
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": "ground"
+            "type": Ground.type
             })
         return json_data
 
@@ -64,6 +66,7 @@ class Ground(Tile):
 
 class Wall(Tile):
     color = (255,0,255)
+    type = "wall"
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = True
@@ -75,7 +78,7 @@ class Wall(Tile):
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": "wall"
+            "type": Wall.type
             })
         return json_data
 
@@ -88,6 +91,7 @@ class Wall(Tile):
 class Door(Tile):
     color = (150,200,180)
     opened_color = (200,200,180)
+    type = "door"
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = False
@@ -103,7 +107,7 @@ class Door(Tile):
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": "door"
+            "type": Door.type
             })
         return json_data
 
@@ -112,6 +116,7 @@ class Door(Tile):
 
 class Pressure_plate(Tile):
     color = (0,255,150)
+    type = "plate"
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = False
@@ -137,7 +142,7 @@ class Pressure_plate(Tile):
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": "plate",
+            "type": Pressure_plate.type,
             "linked_door_x": self.linked_door.x if self.linked_door else -1,
             "linked_door_y": self.linked_door.y if self.linked_door else -1
             })
