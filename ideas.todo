@@ -1,0 +1,30 @@
+Ideas:
+  - [ ] Server:
+    - [ ] Commands:
+      - [ ] add_map <map_name> : add the map to playlist
+      - [ ] next_map : loads the next map in the playlist
+      - [ ] clear_maps : clear the playlist
+      - [ ] load_playlist <file_name> : load a playlist from file
+    - [ ] Playlist:
+      - [ ] File:
+        - [ ] a list of map name to load in order
+
+  - [ ] Map:
+    - [ ] Tiles:
+      - [ ] Teleporters: Go from a tile to another
+      - [ ] Player switch: when both player are on the 2 tiles, they switch positions
+      - [ ] One team door: only one player can go through that door
+
+  - [ ] Special modes:
+    - [ ] Darkness mode: you can only see the tiles around you
+    - [ ] Half mode: each player only sees the half of the map, they have to talk to know what the other player sees
+    - [ ] One player mode: both players controls the same (1 horizon mouvements and the other vertical mouvements)
+
+  - [ ] Config file for keybindings
+  - [ ] Ingame chat (?)
+
+Todo:
+  - [ ] Create sprites:
+    - [ ] Tiles
+    - [ ] Players
+  - [ ] Sounds (?)
