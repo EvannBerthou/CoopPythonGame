@@ -4,13 +4,14 @@ import Player
 import Tiles
 
 import pygame
+import argparse
 from pygame.locals import *
 
 class Game:
-    def __init__(self,w,h):
+    def __init__(self,w,h, args):
         self.w,self.h = w,h
         self.win = pygame.display.set_mode((self.w,self.h))
-        self.game_socket = Client.GameSocket("127.0.0.1", 25565)
+        self.game_socket = Client.GameSocket(args.ip, args.port)
 
         self.map = Map.Map()
         self.network_manager = Client.NetworkManger(self)
@@ -49,5 +50,10 @@ class Game:
         pygame.quit()
         quit(0)
 
-game = Game(800,800)
+parser = argparse.ArgumentParser(description="Server")
+parser.add_argument('--port', type=int,default=25565,help='the port you want to use for the server')
+parser.add_argument('--ip',   type=str,default="127.0.0.1",help='the port you want to use for the server')
+args = parser.parse_args()
+
+game = Game(800,800, args)
 game.run()
