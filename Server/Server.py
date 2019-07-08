@@ -39,7 +39,10 @@ class ClientThread(Thread):
 
     def sendall(self, data):
         data = struct.pack('>I', len(data)) + data.encode()
-        self.socket.sendall(data)
+        total_sent = 0
+        while total_sent < len(data):
+            sent = self.socket.send(data[total_sent:])
+            total_sent += sent
 
 class ServerDrawer(Thread):
     def __init__(self, server):
