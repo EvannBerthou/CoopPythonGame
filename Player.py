@@ -23,10 +23,11 @@ class Player:
         return not tile.collide
 
     def move(self, new_x, new_y):
-        self.game.map.map_data.board[self.y][self.x].on_leave()
-        self.x = new_x
-        self.y = new_y
-        self.game.map.map_data.board[self.y][self.x].on_step()
+        if self.game.map.is_playing:
+            self.game.map.map_data.board[self.y][self.x].on_leave()
+            self.x = new_x
+            self.y = new_y
+            self.game.map.map_data.board[self.y][self.x].on_step()
 
     def on_key_pressed(self):
         if self.local:
@@ -45,8 +46,8 @@ class Player:
         #Set the position of the coop player
         try:
             self.move(int(args[0]), int(args[1]))
-        except:
-            print("error while parsing args {}".format(args))
+        except Exception as err:
+            print("error while parsing args {} : {}".format(args, err))
 
     def draw(self):
         pygame.draw.rect(self.game.win,(255,0,0),(self.x*self.size+self.draw_offset,self.y*self.size+self.draw_offset, self.size, self.size))

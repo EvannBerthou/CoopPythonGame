@@ -36,6 +36,7 @@ class Listener(Thread):
 
     def get_last_message(self):
         if len(self.last_messages) > 0:
+            print(self.last_messages)
             last_message = self.last_messages[-1]
             self.last_messages.remove(self.last_messages[-1])
             return last_message

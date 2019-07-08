@@ -27,7 +27,6 @@ class ClientThread(Thread):
             if ready[0]:
                 r = self.socket.recv(4096).decode()
                 if r.strip(' ') != "" and r != "stop":
-                    self.drawer.addstr("-> {}".format(r))
                     for client in ClientThread.clients:
                         if client is not self:
                             client.socket.send("{}:{} {}".format(self.ip,self.port,r).encode())#RENVOIE LE MESSAGE A TOUS LES AUTRES CLIENTS
