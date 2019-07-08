@@ -2,12 +2,13 @@ import pygame
 from pygame.locals import *
 
 class Player:
-    def __init__(self, local, game, starting_pos):
+    def __init__(self, local, game, starting_pos, color):
         self.game = game
         self.x, self.y = starting_pos[0], starting_pos[1]
         self.size = game.map.cell_size
         self.draw_offset = game.map.offset
         self.local = local
+        self.color = color
     
     #check if the next position is outside the game board
     def check_border(self, x_move, y_move):
@@ -52,4 +53,4 @@ class Player:
             print("error while parsing args {} : {}".format(args, err))
 
     def draw(self):
-        pygame.draw.rect(self.game.win,(255,0,0),(self.x*self.size+self.draw_offset,self.y*self.size+self.draw_offset, self.size, self.size))
+        pygame.draw.rect(self.game.win,self.color,(self.x*self.size+self.draw_offset,self.y*self.size+self.draw_offset, self.size, self.size))

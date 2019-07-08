@@ -90,8 +90,6 @@ class NetworkManger:
     def set_game_id(self, args):
         self.game_id = int(args[0])
         self.game.team = "RED" if self.game_id == 1 else "BLUE"
-        print(self.game_id)
-        print(self.game.team)
 
     def sync_player(self, args):
         if self.game.coop_player:

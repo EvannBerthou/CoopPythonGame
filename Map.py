@@ -36,11 +36,11 @@ class Map:
     
     def create_player(self):
         if self.game.team == "RED":
-            self.game.player      = Player.Player(True, self.game, self.game.map.map_data.starting_red)
-            self.game.coop_player = Player.Player(True, self.game, self.game.map.map_data.starting_blue)
+            self.game.player      = Player.Player(True, self.game, self.game.map.map_data.starting_red, (255,0,0))
+            self.game.coop_player = Player.Player(True, self.game, self.game.map.map_data.starting_blue,(0,0,255))
         else:
-            self.game.player      = Player.Player(True, self.game, self.game.map.map_data.starting_blue)
-            self.game.coop_player = Player.Player(True, self.game, self.game.map.map_data.starting_red)
+            self.game.player      = Player.Player(True, self.game, self.game.map.map_data.starting_blue,(0,0,255))
+            self.game.coop_player = Player.Player(True, self.game, self.game.map.map_data.starting_red, (255,0,0))
 
     def __init__(self, game):
         self.map_size = 16
