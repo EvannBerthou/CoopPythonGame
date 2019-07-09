@@ -5,8 +5,8 @@ Ideas:
       - [ ] next_map : loads the next map in the playlist
       - [ ] clear_maps : clear the playlist
       - [ ] load_playlist <file_name> : load a playlist from file
-      - [ ] Add custom aliases:
-        - [ ] Save them in a file and load them on server start
+      - [X] Add custom aliases:
+        - [X] Save them in a file and load them on server start
     - [ ] Playlist:
       - [ ] File:
         - [ ] a list of map name to load in order

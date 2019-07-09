@@ -64,17 +64,19 @@ class Ground(Tile):
         tile_folder = os.path.join(self.tiles_folder, "Ground")
         return len(os.listdir(tile_folder))
 
+    def load_all_sprites(self):
+        tiles_folder = os.path.join(self.tiles_folder, "Ground")
+        return [pygame.image.load(os.path.join(tiles_folder, "{}.jpg".format(i))) for i in range(self.max_sprite)]
+
     def load_sprite(self, sprite_id):
-        tile_folder = os.path.join(self.tiles_folder, "Ground")
-        sprite_name = os.path.join(tile_folder, "{}.jpg".format(sprite_id))
-        sprite = pygame.image.load(sprite_name)
-        return sprite
+        return self.sprites[sprite_id]
 
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = False
         self.sprite_id = 0
         self.max_sprite = self.get_sprite_count()
+        self.sprites = self.load_all_sprites()
         self.sprite = self.load_sprite(data["sprite_id"] if "sprite_id" in data else 0)
 
     def draw(self, game, offset):
