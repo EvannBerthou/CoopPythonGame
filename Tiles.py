@@ -1,5 +1,6 @@
 import pygame
 import json
+import os
 
 def from_json_data(json_data):
     tile_type = {
@@ -15,11 +16,19 @@ def from_json_data(json_data):
     t = tile_type[data["type"]](data)
     return t
 
+def load_tiles_folder():
+    self_folder = os.path.abspath(os.path.dirname(__file__))
+    asset_folder = os.path.join(self_folder, "assets")
+    tiles_folder = os.path.join(asset_folder, "Tiles")
+    return tiles_folder
+
+
 class Tile:
     def __init__(self, data):
         self.x,self.y = data["x"], data["y"]
         self.size = 48
         self.collide = False
+        self.tiles_folder = load_tiles_folder()
 
     def draw(self, game, offset): pass
     def to_json_data(self): pass    
@@ -27,6 +36,7 @@ class Tile:
     def on_step(self): pass
     #CALLED WHEN A PLAYER LEAVE THIS TILE
     def on_leave(self):pass
+    def toggle(self):pass
 
 class Empty(Tile):
     color = (255,255,255)
@@ -48,18 +58,37 @@ class Empty(Tile):
 class Ground(Tile):
     color = (255,248,220)
     tile_type = "ground"
+
+    def get_sprite_count(self):
+        tile_folder = os.path.join(self.tiles_folder, "Ground")
+        return len(os.listdir(tile_folder))
+
+    def load_sprite(self, sprite_id):
+        tile_folder = os.path.join(self.tiles_folder, "Ground")
+        sprite_name = os.path.join(tile_folder, "{}.jpg".format(sprite_id))
+        sprite = pygame.image.load(sprite_name)
+        return sprite
+
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = False
+        self.sprite_id = 0
+        self.max_sprite = self.get_sprite_count()
+        self.sprite = self.load_sprite(data["sprite_id"] if "sprite_id" in data else 0)
 
     def draw(self, game, offset):
-        pygame.draw.rect(game.win, Ground.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
+        game.win.blit(self.sprite, (self.x * self.size + offset, self.y * self.size + offset))
+
+    def toggle(self):
+        self.sprite_id = (self.sprite_id + 1) % self.max_sprite
+        self.sprite = self.load_sprite(self.sprite_id)
 
     def to_json_data(self):
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": Ground.tile_type
+            "type": Ground.tile_type,
+            "sprite_id": self.sprite_id
             })
         return json_data
 

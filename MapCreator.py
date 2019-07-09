@@ -118,17 +118,13 @@ class Game:
 
             tile = self.board[board_y][board_x] 
 
+            tile.toggle()
+                
             #HANDLE SPECIAL TILES IN ANOTHER FUNCTION
             if isinstance(tile, Tiles.Pressure_plate):
                 self.selected_plate = tile
                 self.linking = True
                 self.info_text.set_text("Click on the door you want the plate to be linked to")
-
-            if isinstance(tile, Tiles.Door):
-                tile.toggle()
-
-            if isinstance(tile, Tiles.Starting_tile):
-                tile.toggle()
 
     def link_plate_to_door(self, plate, door):
         door_pos = (door.x, door.y)
