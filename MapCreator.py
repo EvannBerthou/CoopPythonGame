@@ -115,6 +115,7 @@ class Game:
 
             if not isinstance(self.board[board_y][board_x], self.selected_button.tile):
                 self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
+                #TODO: WHEN A TILE IS CREATED, DETECT ITS SPRITE BASED ON SURROUNDING TILES
 
             tile = self.board[board_y][board_x] 
 

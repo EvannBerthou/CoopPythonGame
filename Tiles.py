@@ -23,6 +23,7 @@ def load_tiles_folder():
     return tiles_folder
 
 
+#TODO: ADD SPRITES FOR ALL TILES
 class Tile:
     def __init__(self, data):
         self.x,self.y = data["x"], data["y"]
@@ -79,6 +80,10 @@ class Ground(Tile):
     def draw(self, game, offset):
         game.win.blit(self.sprite, (self.x * self.size + offset, self.y * self.size + offset))
 
+    #TODO:
+    #CACHE ALL SPRITES AT THE START OF THE GAME
+    #AND PUT THEM IN A DICT WITH THEIR CORRESPONDING DIRECTION
+    #FOR EASIER SURROUNDING SPRITE DETECTION
     def toggle(self):
         self.sprite_id = (self.sprite_id + 1) % self.max_sprite
         self.sprite = self.load_sprite(self.sprite_id)
