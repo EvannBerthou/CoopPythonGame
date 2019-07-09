@@ -116,16 +116,16 @@ class Game:
             if not isinstance(self.board[board_y][board_x], self.selected_button.tile):
                 self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
                 self.board[board_y][board_x].detect_sprite(self.board)
-                return
 
-            tile = self.board[board_y][board_x] 
-            tile.toggle(self.board)
-                
-            #HANDLE SPECIAL TILES IN ANOTHER FUNCTION
-            if isinstance(tile, Tiles.Pressure_plate):
-                self.selected_plate = tile
-                self.linking = True
-                self.info_text.set_text("Click on the door you want the plate to be linked to")
+            else:
+                tile = self.board[board_y][board_x] 
+                tile.toggle(self.board)
+                    
+                #TODO: HANDLE SPECIAL TILES IN ANOTHER FUNCTION
+                if isinstance(tile, Tiles.Pressure_plate):
+                    self.selected_plate = tile
+                    self.linking = True
+                    self.info_text.set_text("Click on the door you want the plate to be linked to")
 
     def link_plate_to_door(self, plate, door):
         door_pos = (door.x, door.y)

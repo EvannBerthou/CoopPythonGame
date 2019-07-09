@@ -17,7 +17,7 @@ Ideas:
       - [ ] Player switch: when both player are on the 2 tiles, they switch positions
       - [ ] One team door: only one player can go through that door
       - [ ] End tile: Goal of the map. Map ends when both player are on the end tile
-      - [ ] Automatic sprite detection based on surrounding tiles
+      - [ ] Automatic sprite detection based on surrounding tiles (Started)
 
   - [ ] Special modes:
     - [ ] Darkness mode: you can only see the tiles around you

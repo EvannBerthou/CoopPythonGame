@@ -20,11 +20,12 @@ class ClientThread(Thread):
         self.running = True
         self.drawer = drawer
 
-        self.drawer.addstr("[+] Nouveau Thread pour le client {}:{}".format(self.ip, self.port))
+        self.drawer.addstr("[+] New Thread for client {}:{}".format(self.ip, self.port))
         ClientThread.clients.append(self)
-        self.drawer.addstr("[!] {} clients connectés".format(len(ClientThread.clients)))
+        self.drawer.addstr("[!] {} online clients".format(len(ClientThread.clients)))
         self.sendall("game_id {}".format(len(ClientThread.clients)))
 
+    #TODO: Add listening to client message to detect when the game is finished, to load the next map
     def run(self):
         while self.running:
             ready = select.select([self.socket], [], [], 0.05)
@@ -35,7 +36,7 @@ class ClientThread(Thread):
                         if client is not self:
                             client.sendall(r)
                 else:
-                    self.drawer.addstr("[-] Déconnexion du client {}:{}".format(self.ip, self.port))
+                    self.drawer.addstr("[-] Client disconnect {}:{}".format(self.ip, self.port))
                     ClientThread.clients.remove(self)
                     self.running = False
 
@@ -116,7 +117,7 @@ class Server:
     def initialize_socket(self):
         s= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind(('', self.port))
-        self.drawer.addstr("[!] En écoute")
+        self.drawer.addstr("[!] Listening")
         return s
 
     def __init__(self, port):
@@ -142,7 +143,7 @@ class Server:
                 (socket, (ip,port)) = self.socket.accept()
                 newthread = ClientThread(ip, port, socket, self.drawer)
                 newthread.start()
-                self.drawer.addstr("[!] En écoute")
+                self.drawer.addstr("[!] Listening")
 
                 if len(ClientThread.clients) > 2:
                     for client in ClientThread.clients[2:]: #from 3rd to last client in the list
@@ -150,7 +151,7 @@ class Server:
                         client.socket.close()
 
     def CloseServer(self, *args):
-        self.drawer.addstr("[!] Fermeture du serveur")
+        self.drawer.addstr("[!] Closing server")
         self.drawer.running = False
         self.running = False
         for client in ClientThread.clients:
@@ -277,7 +278,7 @@ class Server:
 
 
 parser = argparse.ArgumentParser(description="Server")
-parser.add_argument('--port', type=int,default=50,help='the port you want to use for the server')
+parser.add_argument('--port', type=int,default=25565,help='the port you want to use for the server')
 args = parser.parse_args()
 
 server = Server(args.port)

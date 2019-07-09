@@ -220,13 +220,13 @@ class Pressure_plate(Tile):
 
     def on_step(self):
         if self.player_on == 0 and self.linked_door:
-            self.linked_door.toggle()
+            self.linked_door.toggle(None)
         self.player_on += 1
     
     def on_leave(self):
         self.player_on -= 1
         if self.player_on == 0 and self.linked_door:
-            self.linked_door.toggle()
+            self.linked_door.toggle(None)
 
 class Starting_tile(Tile):
     blue = (0,0,200)
