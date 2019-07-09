@@ -37,7 +37,8 @@ class Tile:
     def on_step(self): pass
     #CALLED WHEN A PLAYER LEAVE THIS TILE
     def on_leave(self):pass
-    def toggle(self):pass
+    def toggle(self,board):pass
+    def detect_sprite(self,board): pass
 
 class Empty(Tile):
     color = (255,255,255)
@@ -71,6 +72,41 @@ class Ground(Tile):
     def load_sprite(self, sprite_id):
         return self.sprites[sprite_id]
 
+    def sprite_tuple_to_id(self, offset):
+        return {
+            (-1,-1) :0, #TOP LEFT
+            (0,-1)  :1, #TOP
+            (1,-1)  :2, #TOP RIGHT
+            (-1,0)  :3, #LEFT
+            (0,0)   :4, #CENTER
+            (1,0)   :5, #RIGHT
+            (-1,1)  :6, #BOTTOM LEFT
+            (0,1)   :7, #BOTTOM
+            (1,1)   :8, #BOTTOM RIGHT
+        }[offset]
+
+    #TODO: THERE IS NO SPRITE FOR A TILE WITH MORE THAN 2 WALLS AROUND
+    def detect_sprite(self, board):
+        direction = []
+        for i in [(-1,0),(1,0),(0,-1),(0,1)]:
+            x = self.x + i[0]
+            y = self.y + i[1]
+            tile = board[y][x]
+            if tile.collide:
+                direction.append(i)
+
+        final_tuple_x = 0
+        final_tuple_y = 0
+
+        for i in direction:
+            final_tuple_x += i[0]
+            final_tuple_y += i[1]
+
+        final_tuple = (final_tuple_x, final_tuple_y)
+        sprite_id = self.sprite_tuple_to_id(final_tuple)
+        self.sprite_id = sprite_id
+        self.sprite = self.load_sprite(sprite_id)
+
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = False
@@ -82,13 +118,8 @@ class Ground(Tile):
     def draw(self, game, offset):
         game.win.blit(self.sprite, (self.x * self.size + offset, self.y * self.size + offset))
 
-    #TODO:
-    #CACHE ALL SPRITES AT THE START OF THE GAME
-    #AND PUT THEM IN A DICT WITH THEIR CORRESPONDING DIRECTION
-    #FOR EASIER SURROUNDING SPRITE DETECTION
-    def toggle(self):
-        self.sprite_id = (self.sprite_id + 1) % self.max_sprite
-        self.sprite = self.load_sprite(self.sprite_id)
+    def toggle(self, board): 
+        self.detect_sprite(board)
 
     def to_json_data(self):
         json_data = json.dumps({
@@ -134,7 +165,7 @@ class Door(Tile):
         Tile.__init__(self,data)
         self.collide = data["default"] if "default" in data else True
     
-    def toggle(self):
+    def toggle(self,board):
         self.collide = not self.collide
 
     def draw(self, game, offset):
@@ -207,7 +238,7 @@ class Starting_tile(Tile):
         self.team = data["default"] if "default" in data else "RED"
         self.collide = False
 
-    def toggle(self):
+    def toggle(self,board):
         if self.team == "RED": self.team = "BLUE"
         else: self.team = "RED"
 

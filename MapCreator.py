@@ -115,11 +115,11 @@ class Game:
 
             if not isinstance(self.board[board_y][board_x], self.selected_button.tile):
                 self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
-                #TODO: WHEN A TILE IS CREATED, DETECT ITS SPRITE BASED ON SURROUNDING TILES
+                self.board[board_y][board_x].detect_sprite(self.board)
+                return
 
             tile = self.board[board_y][board_x] 
-
-            tile.toggle()
+            tile.toggle(self.board)
                 
             #HANDLE SPECIAL TILES IN ANOTHER FUNCTION
             if isinstance(tile, Tiles.Pressure_plate):
