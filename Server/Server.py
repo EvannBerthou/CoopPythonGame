@@ -8,6 +8,7 @@ import hashlib
 import time
 import sys
 import struct
+import json
 
 class ClientThread(Thread):
     clients = []
@@ -129,6 +130,9 @@ class Server:
         self.start_time = time.time()
         self.loaded_map_name = list()
 
+        self.aliases_file_path = self.get_aliases_file_path()
+        self.aliases = self.load_aliases()
+
     def run(self):
         while self.running:
             self.socket.listen(5)
@@ -163,6 +167,53 @@ class Server:
         time_format = time.strftime("%M:%S", time.gmtime(elapse_time))
         self.drawer.addstr("{}".format(time_format))
 
+    def get_aliases_file_path(self):
+        file_name = "aliases.json"
+        self_file_path = os.path.dirname(__file__)
+        file_path = os.path.join(self_file_path, file_name)
+        return file_path
+
+    def print_alias(self, args):
+        alias = self.get_alias(args[0])
+        alias_name = alias[0]
+        alias_args = " ".join(str(x[0]) for x in alias[1:])
+        if alias:
+            self.drawer.addstr("{} {}".format(alias_name, alias_args))
+
+    def get_alias(self, alias):
+        if alias in self.aliases:
+            return self.aliases[alias]
+        return None
+
+    def save_aliases(self):
+        json_data = json.dumps(self.aliases)
+        with open(self.aliases_file_path, 'w') as f:
+            f.write(json_data)
+
+    def add_aliases(self, args):
+        name = args[0]
+        alias = args[1]
+        alias_args = args[2:]
+        self.aliases[name] = alias + " " + " ".join(alias_args)
+        self.save_aliases()
+
+    def get_alias(self, args):
+        if args[0] in self.aliases:
+            alias = self.aliases[args[0]].split(' ')
+            alias_name = alias[0]
+            alias_args = alias[1:] if len(alias) > 1 else None
+            return (alias_name, alias_args)
+        return (None, None)
+
+    def load_aliases(self):
+        if os.path.exists(self.aliases_file_path):
+            with open(self.aliases_file_path, 'r') as f:
+                json_data = f.read()
+                data = json.loads(json_data)
+                return data
+        else:
+            self.addstr("No aliases file")
+
     def command(self, command):
         commands = {
                 "quit": self.CloseServer,
@@ -171,13 +222,21 @@ class Server:
                 "reload_map": self.reload_map,
                 "clear": self.drawer.clear_screen,
                 "list": self.player_count,
-                "uptime": self.uptime
+                "uptime": self.uptime,
+                "set_alias": self.add_aliases,
+                "get_alias": self.print_alias,
         }
-
+    
         command_name = command.split(' ')[0]
         args = command.split(' ')[1:]
-
-        if command_name in commands:
+        alias_name,alias_args = self.get_alias(command_name)
+        
+        if alias_name:
+            if alias_args:
+                commands[alias_name](alias_args)
+            else:
+                commands[alias_name](args)
+        elif command_name in commands:
             commands[command_name](args)
         elif command != "":
             self.drawer.addstr("Invalid command")
