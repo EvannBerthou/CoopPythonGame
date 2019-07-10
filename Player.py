@@ -28,7 +28,7 @@ class Player:
             self.game.map.map_data.board[self.y][self.x].on_leave()
             self.x = new_x
             self.y = new_y
-            self.game.map.map_data.board[self.y][self.x].on_step()
+            self.game.map.map_data.board[self.y][self.x].on_step(self)
 
     def on_key_pressed(self):
         if self.local:

@@ -9,7 +9,8 @@ def from_json_data(json_data):
         "ground": Ground,
         "door": Door,
         "plate": Pressure_plate,
-        "starting": Starting_tile
+        "starting": Starting_tile,
+        "teleporter": Teleporter
     }
 
     data = json.loads(json_data)
@@ -34,7 +35,7 @@ class Tile:
     def draw(self, game, offset): pass
     def to_json_data(self): pass    
     #CALLED WHEN A PLAYER GOES ON THIS TILE
-    def on_step(self): pass
+    def on_step(self,player): pass
     #CALLED WHEN A PLAYER LEAVE THIS TILE
     def on_leave(self):pass
     def toggle(self,board):pass
@@ -130,7 +131,7 @@ class Ground(Tile):
             })
         return json_data
 
-    def on_step(self):pass
+    def on_step(self,player):pass
     def on_leave(self):pass
 
 class Wall(Tile):
@@ -151,7 +152,7 @@ class Wall(Tile):
             })
         return json_data
 
-    def on_step(self):
+    def on_step(self,player):
         pass
 
     def on_leave(self):
@@ -181,7 +182,7 @@ class Door(Tile):
             })
         return json_data
 
-    def on_step(self):pass
+    def on_step(self,player):pass
     def on_leave(self):pass
 
 class Pressure_plate(Tile):
@@ -218,7 +219,7 @@ class Pressure_plate(Tile):
             })
         return json_data
 
-    def on_step(self):
+    def on_step(self,player):
         if self.player_on == 0 and self.linked_door:
             self.linked_door.toggle(None)
         self.player_on += 1
@@ -255,5 +256,51 @@ class Starting_tile(Tile):
             })
         return json_data
 
-    def on_step(self):pass
+    def on_step(self,player):pass
     def on_leave(self):pass
+
+class Teleporter(Tile):
+    color = (150,0,50)
+    tile_type = "teleporter"
+    def __init__(self, data):
+        Tile.__init__(self, data)
+        self.linked_teleporter_pos = self.get_linked_teleporter_pos(data)
+        self.linked_door = None
+        self.should_teleport = True
+
+    def get_linked_teleporter_pos(self, data):
+        if "linked_teleporter_x" in data:
+            teleporter_x = data["linked_teleporter_x"]
+            teleporter_y = data["linked_teleporter_y"]
+            return (teleporter_x, teleporter_y)
+        else:
+            return (-1,-1)
+
+    def link_to_teleporter(self, teleporter):
+        self.linked_teleporter = teleporter
+
+    def to_json_data(self):
+        json_data = json.dumps({
+            "x":int(self.x),
+            "y":int(self.y),
+            "type": Teleporter.tile_type,
+            "linked_teleporter_x": self.linked_teleporter.x if self.linked_teleporter else -1,
+            "linked_teleporter_y": self.linked_teleporter.y if self.linked_teleporter else -1
+            })
+        return json_data
+
+    def on_step(self,player):
+        if not self.linked_teleporter:
+            print("This teleporter is not linked")
+            return
+
+        #CHANGE POSITION TO LINKED TELEPORTER
+        if self.should_teleport:
+            self.linked_teleporter.should_teleport = False #TO AVOID THE PLAYER TO BE TELEPORTER FOREVER BY ENTERNING THE TELEPORTED TILE
+            player.move(self.linked_teleporter.x, self.linked_teleporter.y)
+
+    def on_leave(self):
+        self.should_teleport = True
+
+    def draw(self, game, offset):
+        pygame.draw.rect(game.win, Teleporter.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))

@@ -86,6 +86,11 @@ class MapData:
                             door = board[tile.linked_door_pos[1]][tile.linked_door_pos[0]]
                             tile.link_to_door(door)
 
+                    if isinstance(tile, Tiles.Teleporter):
+                        if tile.linked_teleporter_pos != (-1,-1):
+                            teleporter = board[tile.linked_teleporter_pos[1]][tile.linked_teleporter_pos[0]]
+                            tile.link_to_teleporter(teleporter)
+
                     if isinstance(tile, Tiles.Starting_tile):
                         if tile.team == "RED":
                             starting_red = (tile.x, tile.y)

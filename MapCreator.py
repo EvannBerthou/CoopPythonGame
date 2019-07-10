@@ -62,7 +62,7 @@ class Game:
         self.toolbar = self.create_toolbar()
         self.selected_button = self.toolbar[0]
 
-        self.selected_plate = None
+        self.linking_tile = None
         self.linking = False
 
         self.info_text = Info_Text(self.offset, self.h - 50, 24)
@@ -102,13 +102,20 @@ class Game:
                     self.info_text.set_text("{} tile selected".format(btn.tile.tile_type))
         else:
             if self.linking: #TO BE MOVED INTO ANOTHER FUNCTION
+                print("linking")
                 tile = self.board[board_y][board_x] 
 
                 if isinstance(tile, Tiles.Door):
-                    self.link_plate_to_door(self.selected_plate, tile)
+                    self.link_plate_to_door(tile)
                     self.info_text.set_text("Plate linked to door")
                 else:
                     self.info_text.set_text("Can't link plate to door")
+
+                if isinstance(tile, Tiles.Teleporter):
+                    self.link_teleporters(self.linking_tile, tile)
+                else:
+                    self.info_text.set_text("You can only link 2 teleporters")
+                    self.board[board_y][board_x] = Tiles.Empty({"x":board_x,"y":board_y})
 
                 self.linking = False
                 return
@@ -123,15 +130,26 @@ class Game:
                     
                 #TODO: HANDLE SPECIAL TILES IN ANOTHER FUNCTION
                 if isinstance(tile, Tiles.Pressure_plate):
-                    self.selected_plate = tile
+                    self.linking_tile = tile
                     self.linking = True
                     self.info_text.set_text("Click on the door you want the plate to be linked to")
 
-    def link_plate_to_door(self, plate, door):
+                if isinstance(tile, Tiles.Teleporter):
+                    self.linking_tile = tile
+                    self.linking = True
+                    self.info_text.set_text("Click on the teleporter you want the teleporter to be linked to")
+
+    def link_plate_to_door(self, door):
         door_pos = (door.x, door.y)
         door = self.board[door_pos[1]][door_pos[0]]
-        self.selected_plate.link_to_door(door)
+        self.linking_tile.link_to_door(door)
         self.info_text.set_text("Plate linked to door")
+
+    def link_teleporters(self, tep1, tep2):
+        tep1.link_to_teleporter(tep2)
+        tep2.link_to_teleporter(tep1)
+        self.info_text.set_text("Teleporters linked")
+        
 
     def draw(self):
         self.win.fill((0,0,0))
@@ -155,7 +173,8 @@ class Game:
             2: Tiles.Ground,
             3: Tiles.Door,
             4: Tiles.Pressure_plate,
-            5: Tiles.Starting_tile
+            5: Tiles.Starting_tile,
+            6: Tiles.Teleporter
         }
         start_y = self.grid_size * self.cell_size + self.offset + 16
         
