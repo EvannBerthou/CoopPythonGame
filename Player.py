@@ -36,10 +36,11 @@ class Player:
             x_move = keyboard_state[K_d] - keyboard_state[K_a]
             y_move = keyboard_state[K_s] - keyboard_state[K_w]
 
-            if self.check_border(x_move, y_move):
-                if self.check_collision(x_move, y_move):
-                    self.move(self.x + x_move, self.y + y_move)
-                    self.update()
+            if x_move != 0 and y_move != 0:
+                if self.check_border(x_move, y_move):
+                    if self.check_collision(x_move, y_move):
+                        self.move(self.x + x_move, self.y + y_move)
+                        self.update()
 
     def update(self):
         self.game.game_socket.send_message("player_sync {} {}".format(self.x, self.y))
