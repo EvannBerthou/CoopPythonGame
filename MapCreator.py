@@ -101,43 +101,48 @@ class Game:
                     btn.selected = True
                     self.info_text.set_text("{} tile selected".format(btn.tile.tile_type))
         else:
-            if self.linking: #TO BE MOVED INTO ANOTHER FUNCTION
-                print("linking")
-                tile = self.board[board_y][board_x] 
+            if self.linking: self.link_tiles()
 
-                if isinstance(tile, Tiles.Door):
-                    self.link_plate_to_door(tile)
-                    self.info_text.set_text("Plate linked to door")
-                else:
-                    self.info_text.set_text("Can't link plate to door")
-
-                if isinstance(tile, Tiles.Teleporter):
-                    self.link_teleporters(self.linking_tile, tile)
-                else:
-                    self.info_text.set_text("You can only link 2 teleporters")
-                    self.board[board_y][board_x] = Tiles.Empty({"x":board_x,"y":board_y})
-
-                self.linking = False
-                return
-
+            #CREATE A NEW TILE
             if not isinstance(self.board[board_y][board_x], self.selected_button.tile):
                 self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
                 self.board[board_y][board_x].detect_sprite(self.board)
-
+            #IF THE CLICKED TILE TYPE IS THE SAME AS THE TOOLBAR TILE TYPE
             else:
                 tile = self.board[board_y][board_x] 
                 tile.toggle(self.board)
-                    
-                #TODO: HANDLE SPECIAL TILES IN ANOTHER FUNCTION
-                if isinstance(tile, Tiles.Pressure_plate):
-                    self.linking_tile = tile
-                    self.linking = True
-                    self.info_text.set_text("Click on the door you want the plate to be linked to")
+                self.special_tiles(tile)
 
-                if isinstance(tile, Tiles.Teleporter):
-                    self.linking_tile = tile
-                    self.linking = True
-                    self.info_text.set_text("Click on the teleporter you want the teleporter to be linked to")
+    def special_tiles(self,tile):
+        if isinstance(tile, Tiles.Pressure_plate):
+            self.linking_tile = tile
+            self.linking = True
+            self.info_text.set_text("Click on the door you want the plate to be linked to")
+
+        if isinstance(tile, Tiles.Teleporter):
+            self.linking_tile = tile
+            self.linking = True
+            self.info_text.set_text("Click on the teleporter you want the teleporter to be linked to")
+
+    def link_tiles(self, tile):
+        print("linking")
+        tile = self.board[board_y][board_x] 
+
+        if isinstance(tile, Tiles.Door):
+            self.link_plate_to_door(tile)
+            self.info_text.set_text("Plate linked to door")
+        else:
+            self.info_text.set_text("Can't link plate to door")
+
+        if isinstance(tile, Tiles.Teleporter):
+            self.link_teleporters(self.linking_tile, tile)
+        else:
+            self.info_text.set_text("You can only link 2 teleporters")
+            self.board[board_y][board_x] = Tiles.Empty({"x":board_x,"y":board_y})
+
+        self.linking = False
+
+        
 
     def link_plate_to_door(self, door):
         door_pos = (door.x, door.y)

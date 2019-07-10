@@ -265,7 +265,7 @@ class Teleporter(Tile):
     def __init__(self, data):
         Tile.__init__(self, data)
         self.linked_teleporter_pos = self.get_linked_teleporter_pos(data)
-        self.linked_door = None
+        self.linked_teleporter = None
         self.should_teleport = True
 
     def get_linked_teleporter_pos(self, data):
