@@ -5,15 +5,16 @@ Ideas:
       - [ ] next_map : loads the next map in the playlist
       - [ ] clear_maps : clear the playlist
       - [ ] load_playlist <file_name> : load a playlist from file
-      - [X] Add custom aliases:
+      - [ ] Add custom aliases:
         - [X] Save them in a file and load them on server start
+        - [ ] list_aliases : print all loaded aliases
     - [ ] Playlist:
       - [ ] File:
         - [ ] a list of map name to load in order
 
   - [ ] Map:
     - [ ] Tiles:
-      - [ ] Teleporters: Go from a tile to another
+      - [X] Teleporters: Go from a tile to another
       - [ ] Player switch: when both player are on the 2 tiles, they switch positions
       - [ ] One team door: only one player can go through that door
       - [ ] End tile: Goal of the map. Map ends when both player are on the end tile

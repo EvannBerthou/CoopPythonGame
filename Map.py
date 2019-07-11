@@ -64,18 +64,18 @@ class MapData:
         with open(path, 'r') as f:
             json_data = f.read()
             data = json.loads(json_data)
-            
+
             author = data["author"]
             board_data = data["board"]
             starting_red  = (0,0)
             starting_blue = (0,0)
-            
+
             board = [[0 for _ in range(16)] for _ in range(16)]
 
             for i in range(16): #x
                 for j in range(16): #y
                     board[i][j] = Tiles.from_json_data(board_data[i][j])
-    
+
             #TODO: MOVE IT TO ITS OWN FUNCTION
             #LINKED PRESSURE PLATES TO DOORS AFTER ALL TILES ARE PLACED ON THE BOARD
             for i in range(16):
@@ -96,6 +96,12 @@ class MapData:
                             starting_red = (tile.x, tile.y)
                         elif tile.team == "BLUE":
                             starting_blue = (tile.x, tile.y)
+
+                    if isinstance(tile, Tiles.End_Tile):
+                        if tile.other_end_tile_pos != (-1,-1):
+                            print(tile.other_end_tile_pos)
+                            other_end_tile = board[tile.other_end_tile_pos[1]][tile.other_end_tile_pos[0]]
+                            tile.set_other_end_tile(other_end_tile)
 
             print("Map loaded")
             return MapData(author, board, starting_red, starting_blue)

@@ -10,7 +10,8 @@ def from_json_data(json_data):
         "door": Door,
         "plate": Pressure_plate,
         "starting": Starting_tile,
-        "teleporter": Teleporter
+        "teleporter": Teleporter,
+        "end": End_Tile
     }
 
     data = json.loads(json_data)
@@ -293,7 +294,7 @@ class Teleporter(Tile):
         if not self.linked_teleporter:
             print("This teleporter is not linked")
             return
-    
+
         #CHANGE POSITION TO LINKED TELEPORTER
         if self.should_teleport and player.local:
             self.linked_teleporter.should_teleport = False #TO AVOID THE PLAYER TO BE TELEPORTER FOREVER BY ENTERNING THE TELEPORTED TILE
@@ -305,3 +306,55 @@ class Teleporter(Tile):
 
     def draw(self, game, offset):
         pygame.draw.rect(game.win, Teleporter.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
+
+class End_Tile(Tile):
+    color = (255,255,0)
+    tile_type = "end"
+    def __init__(self, data):
+        Tile.__init__(self,data)
+        self.collide = False
+        self.player_on = 0
+        self.alone = data["alone"] if "alone" in data else True
+        self.other_end_tile_pos = self.get_other_end_tile_pos(data)
+        self.other_end_tile = None
+
+    def get_other_end_tile_pos(self, data):
+        if "other_end_tile_x" in data:
+            other_end_tile_x = data["other_end_tile_x"]
+            other_end_tile_y = data["other_end_tile_y"]
+            return (other_end_tile_x, other_end_tile_y)
+        else:
+            return (-1,-1)
+
+    def set_other_end_tile(self, tile):
+        self.other_end_tile = tile
+        self.alone = False
+
+    #WHEN THE GAME IS ENDED, SEND A MESSAGE TO THE SERVER TO LOAD THE NEXT MAP
+    def check_other_end_tile(self):
+        if not self.alone:
+            if self.other_end_tile.player_on == 1 and self.player_on == 1:
+                print("game ended")
+        else:
+            if self.player_on == 2:
+                print("game ended")
+
+    def draw(self, game, offset):
+        pygame.draw.rect(game.win, End_Tile.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
+
+    def on_step(self, player):
+        self.player_on += 1
+        self.check_other_end_tile()
+    def on_leave(self):
+        self.player_on -= 1
+
+    def to_json_data(self):
+        json_data = json.dumps({
+            "x":int(self.x),
+            "y":int(self.y),
+            "type": End_Tile.tile_type,
+            "alone": self.alone,
+            "other_end_tile_x": self.other_end_tile.x if not self.alone else -1,
+            "other_end_tile_y": self.other_end_tile.y if not self.alone else -1
+            })
+        return json_data

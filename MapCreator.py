@@ -18,7 +18,7 @@ class Info_Text:
 
     def draw(self, game):
         game.win.blit(self.text_to_render, (self.x, self.y))
-        
+
 
 class Button:
     def __init__(self, x,y,size,tile):
@@ -67,6 +67,8 @@ class Game:
 
         self.info_text = Info_Text(self.offset, self.h - 50, 24)
 
+        self.end_tiles = []
+
     def run(self):
         while self.running:
             for event in pygame.event.get():
@@ -101,7 +103,7 @@ class Game:
                     btn.selected = True
                     self.info_text.set_text("{} tile selected".format(btn.tile.tile_type))
         else:
-            if self.linking: 
+            if self.linking:
                 self.link_tiles(board_x, board_y)
                 return
 
@@ -109,11 +111,25 @@ class Game:
             if not isinstance(self.board[board_y][board_x], self.selected_button.tile):
                 self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
                 self.board[board_y][board_x].detect_sprite(self.board)
+                if isinstance(self.board[board_y][board_x], Tiles.End_Tile):
+                    self.add_end_tile(board_y,board_x)
             #IF THE CLICKED TILE TYPE IS THE SAME AS THE TOOLBAR TILE TYPE
             else:
-                tile = self.board[board_y][board_x] 
+                tile = self.board[board_y][board_x]
                 tile.toggle(self.board)
                 self.special_tiles(tile)
+
+    def add_end_tile(self, board_y, board_x):
+        if len(self.end_tiles) == 2:
+            print("Already 2 end tiles")
+            self.board[board_y][board_x] = Tiles.Empty({"x":board_x,"y":board_y})
+            return
+
+        self.end_tiles.append(self.board[board_y][board_x])
+
+        if len(self.end_tiles) == 2:
+            self.end_tiles[0].set_other_end_tile(self.end_tiles[1])
+            self.end_tiles[1].set_other_end_tile(self.end_tiles[0])
 
     def special_tiles(self,tile):
         if isinstance(tile, Tiles.Pressure_plate):
@@ -127,7 +143,7 @@ class Game:
             self.info_text.set_text("Click on the teleporter you want the teleporter to be linked to")
 
     def link_tiles(self, board_x, board_y):
-        tile = self.board[board_y][board_x] 
+        tile = self.board[board_y][board_x]
 
         if isinstance(tile, Tiles.Door):
             self.link_plate_to_door(tile)
@@ -142,7 +158,7 @@ class Game:
 
         self.linking = False
 
-        
+
 
     def link_plate_to_door(self, door):
         door_pos = (door.x, door.y)
@@ -154,7 +170,7 @@ class Game:
         tep1.link_to_teleporter(tep2)
         tep2.link_to_teleporter(tep1)
         self.info_text.set_text("Teleporters linked")
-        
+
 
     def draw(self):
         self.win.fill((0,0,0))
@@ -179,10 +195,11 @@ class Game:
             3: Tiles.Door,
             4: Tiles.Pressure_plate,
             5: Tiles.Starting_tile,
-            6: Tiles.Teleporter
+            6: Tiles.Teleporter,
+            7: Tiles.End_Tile
         }
         start_y = self.grid_size * self.cell_size + self.offset + 16
-        
+
         buttons = []
 
         for i in range(len(tiles_id)):
@@ -231,7 +248,7 @@ class Game:
             f.write(json_data)
 
         self.info_text.set_text("Map saved")
-    
+
 
 parser = argparse.ArgumentParser(description="Map Creator")
 parser.add_argument('--name', type=str,default="map",help='the name of the map')
