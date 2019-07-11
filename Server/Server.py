@@ -36,9 +36,11 @@ class ClientThread(Thread):
                         if client is not self:
                             client.sendall(r)
                 else:
+                    #WHEN 1 PLAYER IS DISCONNECTED, DISCONNECT ALL OTHER PLAYERS
                     self.drawer.addstr("[-] Client disconnect {}:{}".format(self.ip, self.port))
-                    ClientThread.clients.remove(self)
-                    self.running = False
+                    for client in ClientThread.clients:
+                        ClientThread.clients.remove(client)
+                        client.running = False
 
     def sendall(self, data):
         data = struct.pack('>I', len(data)) + data.encode()
