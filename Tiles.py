@@ -293,11 +293,12 @@ class Teleporter(Tile):
         if not self.linked_teleporter:
             print("This teleporter is not linked")
             return
-
+    
         #CHANGE POSITION TO LINKED TELEPORTER
-        if self.should_teleport:
+        if self.should_teleport and player.local:
             self.linked_teleporter.should_teleport = False #TO AVOID THE PLAYER TO BE TELEPORTER FOREVER BY ENTERNING THE TELEPORTED TILE
             player.move(self.linked_teleporter.x, self.linked_teleporter.y)
+
 
     def on_leave(self):
         self.should_teleport = True

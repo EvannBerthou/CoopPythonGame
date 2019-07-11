@@ -30,6 +30,9 @@ class Player:
             self.y = new_y
             self.game.map.map_data.board[self.y][self.x].on_step(self)
 
+            if self.local:
+                self.update()
+
     def on_key_pressed(self):
         if self.local:
             keyboard_state = pygame.key.get_pressed()
@@ -40,7 +43,7 @@ class Player:
                 if self.check_border(x_move, y_move):
                     if self.check_collision(x_move, y_move):
                         self.move(self.x + x_move, self.y + y_move)
-                        self.update()
+
 
     def update(self):
         self.game.game_socket.send_message("player_sync {} {}".format(self.x, self.y))

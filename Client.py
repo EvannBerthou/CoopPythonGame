@@ -4,14 +4,14 @@ import select
 import sys
 import struct
 
-class GameSocket(Thread):
+class GameSocket:
     def create_socket(self, ip, port):
         connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connection.connect((ip, port))
         return connection
 
     def send_message(self, message):
-        self.socket.sendall(message.encode())
+        self.sendall(message)
 
     def __init__(self, ip, port):
         self.ip = ip
@@ -19,6 +19,14 @@ class GameSocket(Thread):
         self.socket = self.create_socket(self.ip, self.port)
         self.Listener = Listener(self.socket)
         self.Listener.start()
+
+    def sendall(self, message):
+        data_len = len(message)
+        msg = struct.pack('>I', data_len) + message.encode()
+        total_sent = 0
+        while total_sent < data_len:
+            sent = self.socket.send(message[total_sent:].encode())
+            total_sent += sent
     
 
 class Listener(Thread):
@@ -29,11 +37,15 @@ class Listener(Thread):
         self.last_messages = []
         self.data_size = 0
 
+    #WHEN USING TELEPORTERS: SENDING 16 BITS, RECIEVING 32 ????
     def recv(self):
         raw_data_size = self.recvall(4)
         if raw_data_size:
             data_size = struct.unpack('>I', raw_data_size)[0]
-            return self.recvall(data_size).decode()
+            print(data_size)
+            data = self.recvall(data_size).decode()
+            if data:
+                return data
 
     def recvall(self, size):
         data = b''
@@ -78,9 +90,6 @@ class NetworkManger:
 
         if message_name in commands:
             commands[message_name](message_args)
-        # else:
-            # print("unknown message recieved : {}".format(message_name))
-            # print(message_args)
 
     def update_network(self):
         last_message = self.game.game_socket.Listener.get_last_message()

@@ -101,7 +101,9 @@ class Game:
                     btn.selected = True
                     self.info_text.set_text("{} tile selected".format(btn.tile.tile_type))
         else:
-            if self.linking: self.link_tiles()
+            if self.linking: 
+                self.link_tiles(board_x, board_y)
+                return
 
             #CREATE A NEW TILE
             if not isinstance(self.board[board_y][board_x], self.selected_button.tile):
@@ -124,13 +126,11 @@ class Game:
             self.linking = True
             self.info_text.set_text("Click on the teleporter you want the teleporter to be linked to")
 
-    def link_tiles(self, tile):
-        print("linking")
+    def link_tiles(self, board_x, board_y):
         tile = self.board[board_y][board_x] 
 
         if isinstance(tile, Tiles.Door):
             self.link_plate_to_door(tile)
-            self.info_text.set_text("Plate linked to door")
         else:
             self.info_text.set_text("Can't link plate to door")
 

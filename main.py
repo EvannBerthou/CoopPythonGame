@@ -42,7 +42,7 @@ class Game:
         self.close()
 
     def update(self):
-        if self.tick >= 1000:
+        if self.tick >= 500:
             if self.map.is_playing:
                 self.player.update()
             self.tick = 0
