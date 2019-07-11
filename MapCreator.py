@@ -131,12 +131,12 @@ class Game:
 
         if isinstance(tile, Tiles.Door):
             self.link_plate_to_door(tile)
-        else:
-            self.info_text.set_text("Can't link plate to door")
+        elif isinstance(self.linking_tile, Tiles.Pressure_plate):
+            self.info_text.set_text("You can only link a plate to a door")
 
         if isinstance(tile, Tiles.Teleporter):
             self.link_teleporters(self.linking_tile, tile)
-        else:
+        elif isinstance(self.linking_tile, Tiles.Teleporter):
             self.info_text.set_text("You can only link 2 teleporters")
             self.board[board_y][board_x] = Tiles.Empty({"x":board_x,"y":board_y})
 
