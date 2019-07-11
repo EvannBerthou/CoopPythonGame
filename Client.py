@@ -3,6 +3,7 @@ import socket
 import select
 import sys
 import struct
+import time
 
 class GameSocket:
     def create_socket(self, ip, port):
@@ -27,6 +28,7 @@ class GameSocket:
         while total_sent < data_len:
             sent = self.socket.send(message[total_sent:].encode())
             total_sent += sent
+        time.sleep(0.01) #IT WORKS SOMEHOW BUT ITS PRETTY BAD
     
 
 class Listener(Thread):
