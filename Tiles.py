@@ -335,11 +335,9 @@ class End_Tile(Tile):
     def check_other_end_tile(self):
         if not self.alone:
             if self.other_end_tile.player_on == 1 and self.player_on == 1:
-                print("game ended")
                 self.server_socket.send("end game".encode())
         else:
             if self.player_on == 2:
-                print("game ended")
                 self.server_socket.send("end game".encode())
 
     def draw(self, game, offset):

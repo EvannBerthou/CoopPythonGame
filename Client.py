@@ -44,7 +44,6 @@ class Listener(Thread):
         raw_data_size = self.recvall(4)
         if raw_data_size:
             data_size = struct.unpack('>I', raw_data_size)[0]
-            print(data_size)
             data = self.recvall(data_size).decode()
             if data:
                 return data
