@@ -93,9 +93,10 @@ class Ground(Tile):
         for i in [(-1,0),(1,0),(0,-1),(0,1)]:
             x = self.x + i[0]
             y = self.y + i[1]
-            tile = board[y][x]
-            if tile.collide:
-                direction.append(i)
+            if x > 0 and x < len(board[0]) and y > 0 and y < len(board[0]): #IF ITS ON THE BOARD
+                tile = board[y][x]
+                if tile.collide:
+                    direction.append(i)
 
         final_tuple_x = 0
         final_tuple_y = 0

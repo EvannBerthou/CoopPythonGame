@@ -220,6 +220,20 @@ class Game:
         abs_map_folder = os.path.abspath(map_folder)
         return abs_map_folder
 
+    def relink(self, board):
+        for i in range(16):
+            for j in range(16):
+                tile = board[i][j]
+                if isinstance(tile, Tiles.Teleporter):
+                    if tile.linked_teleporter_pos != (-1,-1):
+                        tile.link_to_teleporter(board[tile.linked_teleporter_pos[1]][tile.linked_teleporter_pos[0]])
+                if isinstance(tile, Tiles.Pressure_plate):
+                    if tile.linked_door_pos != (-1,-1):
+                        tile.link_to_door(board[tile.linked_door_pos[1]][tile.linked_door_pos[0]])
+                if isinstance(tile, Tiles.End_Tile):
+                    if tile.other_end_tile_pos != (-1,-1):
+                        tile.set_other_end_tile(board[tile.other_end_tile_pos[1]][tile.other_end_tile_pos[0]])
+
     def load_map_file(self):
         import json
         path = os.path.join(self.map_folder, self.map_name)
@@ -231,6 +245,9 @@ class Game:
             for i in range(16): #x
                 for j in range(16): #y
                     board[i][j] = Tiles.from_json_data(board_data[i][j])
+
+            self.relink(board)
+
             print("Map loaded")
             return board
 
