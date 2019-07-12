@@ -56,8 +56,11 @@ class ClientThread(Thread):
         if message == "end game":
             if not self.server.game_ended:
                 self.drawer.addstr("Game ended")
+                self.game_ended = True
                 self.server.load_next_map()
-                self.server.game_ended = True
+
+        if message == "game started":
+            self.game_ended = False
 
 class ServerDrawer(Thread):
     def __init__(self, server):
