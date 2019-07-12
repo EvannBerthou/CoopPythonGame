@@ -160,7 +160,7 @@ class Server:
             client.sendall("disconnect Server closing")
             client.running = False
         self.socket.close()
-    
+
     def player_count(self, *args):
         self.drawer.addstr("{} players conncted".format(len(ClientThread.clients)))
 
@@ -217,6 +217,13 @@ class Server:
         else:
             self.addstr("No aliases file")
 
+    def list_aliases(self, args):
+        self.drawer.addstr("Loaded aliases :")
+        for alias in  self.aliases:
+            alias_name, alias_args = self.get_alias(alias)
+            msg = "    - {} : {} {}".format(alias, alias_name, *alias_args)
+            self.drawer.addstr(msg)
+
     def command(self, command):
         commands = {
                 "quit": self.CloseServer,
@@ -228,12 +235,13 @@ class Server:
                 "uptime": self.uptime,
                 "set_alias": self.add_aliases,
                 "get_alias": self.print_alias,
+                "list_aliases": self.list_aliases,
         }
-    
+
         command_name = command.split(' ')[0]
         args = command.split(' ')[1:]
         alias_name,alias_args = self.get_alias(command_name)
-        
+
         if alias_name:
             if alias_args:
                 commands[alias_name](alias_args)
