@@ -28,12 +28,12 @@ class Map:
             with open(map_path, 'r') as f:
                 local_map_hash = hashlib.sha256(f.read().encode()).hexdigest()
                 if local_map_hash == map_hash:
-                    self.map_data = MapData.from_file(map_path)
+                    self.map_data = MapData.from_file(map_path, self.game)
                     self.is_playing = True
                     self.create_player()
                 else:
                     print("You don't have this map or your map is incompatible")
-    
+
     def create_player(self):
         if self.game.team == "RED":
             self.game.player      = Player.Player(True, self.game, self.game.map.map_data.starting_red, (255,0,0))
@@ -59,7 +59,7 @@ class MapData:
         self.starting_red  = starting_red
         self.starting_blue = starting_blue
 
-    def from_file(path):
+    def from_file(path, game):
         import json
         with open(path, 'r') as f:
             json_data = f.read()
@@ -77,7 +77,7 @@ class MapData:
                     board[i][j] = Tiles.from_json_data(board_data[i][j])
 
             #TODO: MOVE IT TO ITS OWN FUNCTION
-            #LINKED PRESSURE PLATES TO DOORS AFTER ALL TILES ARE PLACED ON THE BOARD
+            #LINKS SPECIAL TILES
             for i in range(16):
                 for j in range(16):
                     tile = board[i][j]
@@ -102,6 +102,9 @@ class MapData:
                             print(tile.other_end_tile_pos)
                             other_end_tile = board[tile.other_end_tile_pos[1]][tile.other_end_tile_pos[0]]
                             tile.set_other_end_tile(other_end_tile)
+
+                    if isinstance(tile, Tiles.End_Tile):
+                        tile.server_socket = game.game_socket.socket
 
             print("Map loaded")
             return MapData(author, board, starting_red, starting_blue)

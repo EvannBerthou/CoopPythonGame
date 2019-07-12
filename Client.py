@@ -29,7 +29,7 @@ class GameSocket:
             sent = self.socket.send(message[total_sent:].encode())
             total_sent += sent
         time.sleep(0.01) #IT WORKS SOMEHOW BUT ITS PRETTY BAD
-    
+
 
 class Listener(Thread):
     def __init__(self, socket):

@@ -12,13 +12,14 @@ import json
 
 class ClientThread(Thread):
     clients = []
-    def __init__(self, ip, port, socket, drawer):
+    def __init__(self, ip, port, socket, drawer, server):
         Thread.__init__(self)
         self.ip = ip
         self.port = port
         self.socket = socket
         self.running = True
         self.drawer = drawer
+        self.server = server
 
         self.drawer.addstr("[+] New Thread for client {}:{}".format(self.ip, self.port))
         ClientThread.clients.append(self)
@@ -31,10 +32,11 @@ class ClientThread(Thread):
             ready = select.select([self.socket], [], [], 0.05)
             if ready[0]:
                 r = self.socket.recv(2048).decode()
-                if r.strip(' ') != "" and r != "stop":
+                if r.strip(' ') != "":
                     for client in ClientThread.clients:
                         if client is not self:
                             client.sendall(r)
+                    self.player_message(r)
                 else:
                     #WHEN 1 PLAYER IS DISCONNECTED, DISCONNECT ALL OTHER PLAYERS
                     self.drawer.addstr("[-] Client disconnect {}:{}".format(self.ip, self.port))
@@ -48,6 +50,14 @@ class ClientThread(Thread):
         while total_sent < len(data):
             sent = self.socket.send(data[total_sent:])
             total_sent += sent
+
+    #ONLY HANDLES END GAME DETECTION FOR NOW BECAUSE ITS THE ONLY ONE NEEDED
+    def player_message(self, message):
+        if message == "end game":
+            if not self.server.game_ended:
+                self.drawer.addstr("Game ended")
+                self.server.load_next_map()
+                self.server.game_ended = True
 
 class ServerDrawer(Thread):
     def __init__(self, server):
@@ -131,7 +141,8 @@ class Server:
 
         self.map_folder = self.get_map_folder_path()
         self.start_time = time.time()
-        self.loaded_map_name = list()
+        self.loaded_map_name = []
+        self.game_ended = False
 
         self.aliases_file_path = self.get_aliases_file_path()
         self.aliases = self.load_aliases()
@@ -143,7 +154,7 @@ class Server:
 
             for connexion in connexions:
                 (socket, (ip,port)) = self.socket.accept()
-                newthread = ClientThread(ip, port, socket, self.drawer)
+                newthread = ClientThread(ip, port, socket, self.drawer, self)
                 newthread.start()
                 self.drawer.addstr("[!] Listening")
 
@@ -252,6 +263,9 @@ class Server:
         elif command != "":
             self.drawer.addstr("Invalid command")
 
+    #ONLY RELOADS FOR NOW
+    def load_next_map(self):
+        self.reload_map()
 
     def hash_map(self, map_path):
         with open(map_path, 'r') as f:
@@ -276,7 +290,7 @@ class Server:
             self.drawer.addstr("The map {} does not exist".format(map_name))
             self.loaded_map_path = None
 
-    def reload_map(self, args):
+    def reload_map(self, *args):
         if self.loaded_map_name:
             self.load_map(self.loaded_map_name)
         else:

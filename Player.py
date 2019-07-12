@@ -9,7 +9,7 @@ class Player:
         self.draw_offset = game.map.offset
         self.local = local
         self.color = color
-    
+
     #check if the next position is outside the game board
     def check_border(self, x_move, y_move):
         if self.x + x_move < 0 or self.x + x_move >= 16: return False

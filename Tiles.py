@@ -34,7 +34,7 @@ class Tile:
         self.tiles_folder = load_tiles_folder()
 
     def draw(self, game, offset): pass
-    def to_json_data(self): pass    
+    def to_json_data(self): pass
     #CALLED WHEN A PLAYER GOES ON THIS TILE
     def on_step(self,player): pass
     #CALLED WHEN A PLAYER LEAVE THIS TILE
@@ -120,7 +120,7 @@ class Ground(Tile):
     def draw(self, game, offset):
         game.win.blit(self.sprite, (self.x * self.size + offset, self.y * self.size + offset))
 
-    def toggle(self, board): 
+    def toggle(self, board):
         self.detect_sprite(board)
 
     def to_json_data(self):
@@ -166,7 +166,7 @@ class Door(Tile):
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = data["default"] if "default" in data else True
-    
+
     def toggle(self,board):
         self.collide = not self.collide
 
@@ -224,7 +224,7 @@ class Pressure_plate(Tile):
         if self.player_on == 0 and self.linked_door:
             self.linked_door.toggle(None)
         self.player_on += 1
-    
+
     def on_leave(self):
         self.player_on -= 1
         if self.player_on == 0 and self.linked_door:
@@ -317,6 +317,7 @@ class End_Tile(Tile):
         self.alone = data["alone"] if "alone" in data else True
         self.other_end_tile_pos = self.get_other_end_tile_pos(data)
         self.other_end_tile = None
+        self.server_socket = None
 
     def get_other_end_tile_pos(self, data):
         if "other_end_tile_x" in data:
@@ -335,9 +336,11 @@ class End_Tile(Tile):
         if not self.alone:
             if self.other_end_tile.player_on == 1 and self.player_on == 1:
                 print("game ended")
+                self.server_socket.send("end game".encode())
         else:
             if self.player_on == 2:
                 print("game ended")
+                self.server_socket.send("end game".encode())
 
     def draw(self, game, offset):
         pygame.draw.rect(game.win, End_Tile.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
