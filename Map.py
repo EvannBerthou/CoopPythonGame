@@ -82,6 +82,7 @@ class MapData:
             for i in range(16):
                 for j in range(16):
                     tile = board[i][j]
+                    tile.detect_sprite(board)
                     if isinstance(tile, Tiles.Pressure_plate):
                         if tile.linked_door_pos != (-1,-1):
                             door = board[tile.linked_door_pos[1]][tile.linked_door_pos[0]]

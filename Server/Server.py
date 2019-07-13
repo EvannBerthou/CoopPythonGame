@@ -26,7 +26,6 @@ class ClientThread(Thread):
         self.drawer.addstr("[!] {} online clients".format(len(ClientThread.clients)))
         self.sendall("game_id {}".format(len(ClientThread.clients)))
 
-    #TODO: Add listening to client message to detect when the game is finished, to load the next map
     def run(self):
         while self.running:
             ready = select.select([self.socket], [], [], 0.05)

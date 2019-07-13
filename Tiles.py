@@ -76,16 +76,24 @@ class Ground(Tile):
 
     def sprite_tuple_to_id(self, offset):
         return {
-            (-1,-1) :0, #TOP LEFT
-            (0,-1)  :1, #TOP
-            (1,-1)  :2, #TOP RIGHT
-            (-1,0)  :3, #LEFT
-            (0,0)   :4, #CENTER
-            (1,0)   :5, #RIGHT
-            (-1,1)  :6, #BOTTOM LEFT
-            (0,1)   :7, #BOTTOM
-            (1,1)   :8, #BOTTOM RIGHT
-        }[offset]
+            ((-1,0),(0,-1)) :0, #TOP LEFT
+            ((0,-1),)       :1, #TOP
+            ((0,-1),(1,0))  :2, #TOP RIGHT
+            ((-1,0),)       :3, #LEFT
+            ()              :4, #CENTER
+            ((1,0),)        :5, #RIGHT
+            ((-1,0),(0,1))  :6, #BOTTOM LEFT
+            ((0,1),)        :7, #BOTTOM
+            ((0,1),(1,0))   :8, #BOTTOM RIGHT
+
+			((-1,0),(0,-1),(0,1),(1,0)) :9,
+            ((-1,0),(0,-1),(0,1))       :10,
+			((0,-1), (0,1), (1,0))   	:11,
+			((-1, 0), (0, -1), (1, 0))  :12,
+			((-1, 0), (0, 1), (1, 0))   :13,
+			((-1, 0), (1, 0))			:14,
+			((0, -1), (0, 1))			:15,
+        }[tuple(offset)]
 
     #TODO: THERE IS NO SPRITE FOR A TILE WITH MORE THAN 2 WALLS AROUND
     def detect_sprite(self, board):
@@ -93,20 +101,14 @@ class Ground(Tile):
         for i in [(-1,0),(1,0),(0,-1),(0,1)]:
             x = self.x + i[0]
             y = self.y + i[1]
-            if x > 0 and x < len(board[0]) and y > 0 and y < len(board[0]): #IF ITS ON THE BOARD
+            if x >= 0 and x < len(board[0]) and y >= 0 and y < len(board[0]): #IF ITS ON THE BOARD
                 tile = board[y][x]
-                if tile.collide:
+                if not isinstance(tile, Ground):
                     direction.append(i)
+            else:
+                direction.append(i)
 
-        final_tuple_x = 0
-        final_tuple_y = 0
-
-        for i in direction:
-            final_tuple_x += i[0]
-            final_tuple_y += i[1]
-
-        final_tuple = (final_tuple_x, final_tuple_y)
-        sprite_id = self.sprite_tuple_to_id(final_tuple)
+        sprite_id = self.sprite_tuple_to_id(sorted(direction))
         self.sprite_id = sprite_id
         self.sprite = self.load_sprite(sprite_id)
 
