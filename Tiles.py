@@ -86,16 +86,15 @@ class Ground(Tile):
             ((0,1),)        :7, #BOTTOM
             ((0,1),(1,0))   :8, #BOTTOM RIGHT
 
-			((-1,0),(0,-1),(0,1),(1,0)) :9,
-            ((-1,0),(0,-1),(0,1))       :10,
-			((0,-1), (0,1), (1,0))   	:11,
-			((-1, 0), (0, -1), (1, 0))  :12,
-			((-1, 0), (0, 1), (1, 0))   :13,
-			((-1, 0), (1, 0))			:14,
-			((0, -1), (0, 1))			:15,
+			((-1,0),(0,-1),(0,1),(1,0)) :9,  #TOP BOTTOM LEFT RIGHT
+            ((-1,0),(0,-1),(0,1))       :10, #TOP BOTTOM LEFT
+			((0,-1), (0,1), (1,0))   	:11, #TOP BOTTOM RIGHT
+			((-1, 0), (0, -1), (1, 0))  :12, #TOP LEFT RIGHT
+			((-1, 0), (0, 1), (1, 0))   :13, #BOTTOM LEFT RIGHT
+			((-1, 0), (1, 0))			:14, #LEFT RIGHT
+			((0, -1), (0, 1))			:15, #TOP BOTTOM
         }[tuple(offset)]
 
-    #TODO: THERE IS NO SPRITE FOR A TILE WITH MORE THAN 2 WALLS AROUND
     def detect_sprite(self, board):
         direction = []
         for i in [(-1,0),(1,0),(0,-1),(0,1)]:
@@ -135,9 +134,6 @@ class Ground(Tile):
             })
         return json_data
 
-    def on_step(self,player):pass
-    def on_leave(self):pass
-
 class Wall(Tile):
     color = (255,0,255)
     tile_type = "wall"
@@ -155,12 +151,6 @@ class Wall(Tile):
             "type": Wall.tile_type
             })
         return json_data
-
-    def on_step(self,player):
-        pass
-
-    def on_leave(self):
-        pass
 
 class Door(Tile):
     color = (255,0,0)
@@ -185,9 +175,6 @@ class Door(Tile):
             "default": int(self.collide)
             })
         return json_data
-
-    def on_step(self,player):pass
-    def on_leave(self):pass
 
 class Pressure_plate(Tile):
     color = (0,255,150)
@@ -259,9 +246,6 @@ class Starting_tile(Tile):
             "default": self.team
             })
         return json_data
-
-    def on_step(self,player):pass
-    def on_leave(self):pass
 
 class Teleporter(Tile):
     color = (150,0,50)
