@@ -35,7 +35,7 @@ class Button:
 
     def is_hovered(self):
         mouse_position = pygame.mouse.get_pos()
-        return (self.x + self.size > mouse_position[0] > self.x 
+        return (self.x + self.size > mouse_position[0] > self.x
                 and self.y + self.size > mouse_position[1] > self.y)
 
     def is_clicked(self):
@@ -120,6 +120,7 @@ class Game:
 
             #CREATE A NEW TILE
             if not isinstance(self.board[board_y][board_x], self.selected_button.tile):
+                self.remove(self.board[board_y][board_x])
                 self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
                 self.board[board_y][board_x].detect_sprite(self.board)
                 if isinstance(self.board[board_y][board_x], Tiles.End_Tile):
@@ -130,9 +131,15 @@ class Game:
                 tile.toggle(self.board)
                 self.special_tiles(tile)
 
+    def remove(self, tile):
+        if isinstance(tile, Tiles.End_Tile):
+            self.end_tiles.remove(tile)
+            if len(self.end_tiles) > 0:
+                self.end_tiles[0].unlink()
+
     def add_end_tile(self, board_y, board_x):
         if len(self.end_tiles) == 2:
-            print("Already 2 end tiles")
+            self.info_text.set_text("There is already 2 End Tiles on the board")
             self.board[board_y][board_x] = Tiles.Empty({"x":board_x,"y":board_y})
             return
 

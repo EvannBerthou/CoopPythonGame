@@ -41,6 +41,8 @@ class Tile:
     def on_leave(self):pass
     def toggle(self,board):pass
     def detect_sprite(self,board): pass
+    #TODO: Unlink linked tiles when on of the two tiles is removed
+    def unlink(self): pass
 
 class Empty(Tile):
     color = (255,255,255)
@@ -102,7 +104,7 @@ class Ground(Tile):
             y = self.y + i[1]
             if x >= 0 and x < len(board[0]) and y >= 0 and y < len(board[0]): #IF ITS ON THE BOARD
                 tile = board[y][x]
-                if not isinstance(tile, Ground):
+                if not isinstance(tile, Ground) and not isinstance(tile, Empty):
                     direction.append(i)
             else:
                 direction.append(i)
@@ -346,3 +348,8 @@ class End_Tile(Tile):
             "other_end_tile_y": self.other_end_tile.y if not self.alone else -1
             })
         return json_data
+
+    def unlink(self):
+        self.other_end_tile = None
+        self.other_end_tile_pos = (-1,-1)
+        self.alone = True
