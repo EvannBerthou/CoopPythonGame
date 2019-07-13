@@ -11,7 +11,7 @@ class Info_Text:
     def __init__(self, x,y, font_size):
         self.x, self.y = x,y
         self.font = pygame.font.SysFont("Arial", font_size)
-        self.set_text("Info text")
+        self.set_text("")
 
     def set_text(self, text):
         self.text_to_render = self.font.render(text, 1, (255,255,255))
@@ -76,6 +76,7 @@ class Game:
                     self.running = False
                 if event.type == pygame.KEYDOWN:
                     self.on_key_pressed()
+                    self.toolbar_shortcut(event.scancode)
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.mouse.get_pressed()[0]:
                         self.on_click()
@@ -83,6 +84,16 @@ class Game:
                     self.on_click()
             self.draw()
         pygame.quit()
+
+    def toolbar_shortcut(self, key):
+        if key >= 10 and key < 20:
+            toolbar_id = key - 10
+            if toolbar_id < len(self.toolbar):
+                btn = self.toolbar[toolbar_id]
+                if self.selected_button: self.selected_button.selected = False
+                self.selected_button = btn
+                btn.selected = True
+                self.info_text.set_text("{} tile selected".format(btn.tile.tile_type))
 
     def on_key_pressed(self):
         keyboard_state = pygame.key.get_pressed()
