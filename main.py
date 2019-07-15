@@ -2,6 +2,7 @@ import Client
 import Map
 import Player
 import Tiles
+import ChatBox
 
 import pygame
 import argparse
@@ -16,6 +17,8 @@ class Game:
         self.map = Map.Map(self)
         self.network_manager = Client.NetworkManger(self)
 
+        self.chat_box = ChatBox.ChatBox(10, 800, 400, 250)
+
         self.team = None
         self.player = None
         self.coop_player = None
@@ -26,26 +29,31 @@ class Game:
     def run(self):
         running = True
         while running:
-            dt = self.clock.tick(60)
+            dt = self.clock.tick()
             self.tick += dt
-            for event in pygame.event.get():
+            events = pygame.event.get()
+            for event in events:
                 if event.type == QUIT:
                     running = False
 
                 if event.type == pygame.KEYDOWN:
-                    if self.map.map_data:
+                    if self.map.map_data and not self.chat_box.enabled:
                         self.player.on_key_pressed()
 
+            self.chat_box.update(events)
+            self.chat_box.input_field.update(events)
             self.network_manager.update_network()
-            self.update()
+            self.update(dt)
             self.draw()
         self.close()
 
-    def update(self):
+    def update(self,dt):
         if self.tick >= 500:
             if self.map.is_playing:
                 self.player.update()
             self.tick = 0
+        if self.chat_box.in_animation:
+            self.chat_box.animate(dt)
 
     def draw(self):
         self.win.fill((0,0,0))
@@ -53,6 +61,7 @@ class Game:
         if self.map.is_playing: #IF A MAP IS LOADED
             self.player.draw()
             self.coop_player.draw()
+            self.chat_box.draw(self)
 
         pygame.display.update()
 
