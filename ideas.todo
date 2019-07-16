@@ -26,8 +26,9 @@ Ideas:
     - [ ] One player mode: both players controls the same (1 horizon mouvements and the other vertical mouvements)
 
   - [ ] Config file for keybindings
-  - [ ] Ingame chat (?)
-
+  - [ ] Ingame chat
+    - [ ] When a message in added in the chat box, send it to other players
+    - [ ] Maybe add a nickname system ? In config file ?
 Todo:
   - [ ] Create sprites:
     - [ ] Tiles:

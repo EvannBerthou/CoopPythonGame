@@ -17,7 +17,7 @@ class Game:
         self.map = Map.Map(self)
         self.network_manager = Client.NetworkManger(self)
 
-        self.chat_box = ChatBox.ChatBox(10, 800, 400, 250)
+        self.chat_box = ChatBox.ChatBox(10, 800, 400, 250, self.game_socket)
 
         self.team = None
         self.player = None

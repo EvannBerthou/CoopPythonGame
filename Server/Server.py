@@ -35,6 +35,7 @@ class ClientThread(Thread):
                     for client in ClientThread.clients:
                         if client is not self:
                             client.sendall(r)
+                    self.drawer.addstr(r)
                     self.player_message(r)
                 else:
                     #WHEN 1 PLAYER IS DISCONNECTED, DISCONNECT ALL OTHER PLAYERS
@@ -44,10 +45,12 @@ class ClientThread(Thread):
                         client.running = False
 
     def sendall(self, data):
-        data = struct.pack('>I', len(data)) + data.encode()
+        encoded = data.encode()
+        data_len = len(encoded)
+        msg = struct.pack('>I', data_len) + encoded
         total_sent = 0
-        while total_sent < len(data):
-            sent = self.socket.send(data[total_sent:])
+        while total_sent < data_len:
+            sent = self.socket.send(msg[total_sent:])
             total_sent += sent
 
     #ONLY HANDLES END GAME DETECTION FOR NOW BECAUSE ITS THE ONLY ONE NEEDED

@@ -22,11 +22,12 @@ class GameSocket:
         self.Listener.start()
 
     def sendall(self, message):
-        data_len = len(message)
-        msg = struct.pack('>I', data_len) + message.encode()
+        encoded = message.encode()
+        data_len = len(encoded)
+        msg = struct.pack('>I', data_len) + encoded
         total_sent = 0
         while total_sent < data_len:
-            sent = self.socket.send(message[total_sent:].encode())
+            sent = self.socket.send(encoded[total_sent:])
             total_sent += sent
         time.sleep(0.01) #IT WORKS SOMEHOW BUT ITS PRETTY BAD
 
@@ -44,9 +45,9 @@ class Listener(Thread):
         raw_data_size = self.recvall(4)
         if raw_data_size:
             data_size = struct.unpack('>I', raw_data_size)[0]
-            data = self.recvall(data_size).decode()
+            data = self.recvall(data_size)
             if data:
-                return data
+                return data.decode()
 
     def recvall(self, size):
         data = b''
@@ -82,7 +83,8 @@ class NetworkManger:
                 "disconnect": self.disconnect,
                 "map_hash": self.game.map.load_map,
                 "player_sync": self.sync_player,
-                "game_id": self.set_game_id
+                "game_id": self.set_game_id,
+                "chat_message": self.send_chat_message,
         }
 
         parts = message.split(' ')
@@ -96,6 +98,10 @@ class NetworkManger:
         last_message = self.game.game_socket.Listener.get_last_message()
         if last_message:
             self.eval_message(last_message)
+
+    def send_chat_message(self, args):
+        msg = " ".join(args)
+        self.game.chat_box.add_message(msg)
 
     def set_game_id(self, args):
         self.game_id = int(args[0])

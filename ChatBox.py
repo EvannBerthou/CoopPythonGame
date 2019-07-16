@@ -52,6 +52,7 @@ class InputField:
     def send_message(self):
         if self.text.strip(' ') != '':
             self.chat_box.add_message(self.text)
+            self.chat_box.send_message_to_server(self.text)
             self.text = ''
             self.offset = 0
             self.cursor_pos = 0
@@ -144,7 +145,7 @@ class InputField:
                     self.remove_letter()
                 else: self.add_letter(event.unicode)
 class ChatBox:
-    def __init__(self, x,y,w,h):
+    def __init__(self, x,y,w,h, game_socket):
         self.x,self.y,self.w,self.h = x,y,w,h
         self.enabled = False
         self.background = self.create_background()
@@ -166,6 +167,8 @@ class ChatBox:
         self.end_y = 540
         self.animated_y = self.y
         self.animation_speed = (self.start_y - self.end_y) / self.animation_duration
+
+        self.game_socket = game_socket
 
     def split_message(self, message):
         text = ""
@@ -196,6 +199,10 @@ class ChatBox:
             if self.all_messages_height() > self.history_box.h:
                 #SHOULD NOT DELETE, SHOULD BE KEPT TO ALLOW SCROLLING IN HISTORY
                 del self.messages[0]
+
+
+    def send_message_to_server(self, message):
+        self.game_socket.send_message("chat_message {}".format(message))
 
     def create_background(self):
         surface = pygame.Surface((self.w,self.h))
