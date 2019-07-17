@@ -27,8 +27,13 @@ Ideas:
 
   - [ ] Config file for keybindings
   - [ ] Ingame chat
-    - [ ] When a message in added in the chat box, send it to other players
+    - [X] When a message in added in the chat box, send it to other players
+    - [ ] Handle player command on server
+    - [ ] Notification on message recieved when the chat is not opened
     - [ ] Maybe add a nickname system ? In config file ?
+
+  - [ ] Add a better log system
+
 Todo:
   - [ ] Create sprites:
     - [ ] Tiles:

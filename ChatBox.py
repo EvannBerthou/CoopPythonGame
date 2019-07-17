@@ -201,6 +201,7 @@ class ChatBox:
                 del self.messages[0]
 
 
+    #TODO: Send command to server through chat
     def send_message_to_server(self, message):
         self.game_socket.send_message("chat_message {}".format(message))
 
@@ -256,4 +257,6 @@ class ChatBox:
 """
 TODO:
     Add mouse scroll in history box
+    Add pseudo for each player
+    Add notification on message recieved when the chat box is not opened
 """

@@ -53,7 +53,7 @@ class ClientThread(Thread):
             sent = self.socket.send(msg[total_sent:])
             total_sent += sent
 
-    #ONLY HANDLES END GAME DETECTION FOR NOW BECAUSE ITS THE ONLY ONE NEEDED
+    #TODO: Handles this better to get command from player and execute them on the server
     def player_message(self, message):
         if message == "end game":
             if not self.server.game_ended:
