@@ -205,11 +205,9 @@ class ChatBox:
                 del self.messages[0]
 
 
-    #TODO: Send command to server through chat
     def send_message_to_server(self, message):
         msg = "{}: {}".format(self.name, message)
         self.game_socket.send_message("chat_message {}".format(msg))
-        self.add_message(msg)
 
     def create_background(self):
         surface = pygame.Surface((self.w,self.h))

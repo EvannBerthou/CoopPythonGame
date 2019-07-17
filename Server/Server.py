@@ -32,11 +32,11 @@ class ClientThread(Thread):
             if ready[0]:
                 r = self.socket.recv(2048).decode()
                 if r.strip(' ') != "":
-                    for client in ClientThread.clients:
-                        if client is not self:
-                            client.sendall(r)
-                    self.drawer.addstr(r)
                     self.player_message(r)
+                    # for client in ClientThread.clients:
+                        # if client is not self:
+                            # client.sendall(r)
+                    self.drawer.addstr(r)
                 else:
                     #WHEN 1 PLAYER IS DISCONNECTED, DISCONNECT ALL OTHER PLAYERS
                     self.drawer.addstr("[-] Client disconnect {}:{}".format(self.ip, self.port))
@@ -53,16 +53,38 @@ class ClientThread(Thread):
             sent = self.socket.send(msg[total_sent:])
             total_sent += sent
 
-    #TODO: Handles this better to get command from player and execute them on the server
-    def player_message(self, message):
-        if message == "end game":
-            if not self.server.game_ended:
-                self.drawer.addstr("Game ended")
-                self.game_ended = True
-                self.server.load_next_map()
+    def resend_to_all_players(self, message):
+        for client in ClientThread.clients:
+            if client is not self:
+                client.sendall(message)
 
-        if message == "game started":
-            self.game_ended = False
+    def player_message(self, message):
+        commands = {
+                "end_game": self.server.end_game,
+                "game_started": self.server.on_game_started,
+                "chat_message": self.handle_player_chat_message,
+        }
+
+        parts = message.split(' ')
+        message_name = parts[0]
+        message_args = parts[1:]
+
+        if message_name in commands:
+            commands[message_name](message_args)
+        else:
+            self.resend_to_all_players(message)
+
+    def handle_player_chat_message(self, args):
+        #start with 1 because 0 is the player name
+        if args[1].startswith("/"):
+            name = args[1][1:] #remove the slash
+            #If the output is in multiple line (eg list_aliases), only the last line will be sent
+            self.server.command("{} {}".format(name, args[2:]))
+            self.sendall("chat_message {}".format(" ".join(args)))
+            self.sendall("chat_message {}".format(self.drawer.last_message)) #Send the output to the player who performed the command
+        else:
+            for client in ClientThread.clients:
+                client.sendall("chat_message {}".format(" ".join(args)))
 
 class ServerDrawer(Thread):
     def __init__(self, server):
@@ -77,6 +99,8 @@ class ServerDrawer(Thread):
         self.server = server
         self.running = True
 
+        self.last_message = ""
+
     def addstr(self, text):
         self.clear_input()
         self.stdscr.addstr("{}\n".format(str(text)))
@@ -87,6 +111,8 @@ class ServerDrawer(Thread):
 
         self.draw_input()
         self.stdscr.refresh()
+
+        self.last_message = text
 
     def clear_input(self):
         self.stdscr.move(self.current_row,0)
@@ -305,6 +331,15 @@ class Server:
         for client in ClientThread.clients:
             client.sendall(message)
 
+    def end_game(self, args):
+        self.drawer.addstr("t")
+        if not self.game_ended:
+            self.drawer.addstr("Game ended")
+            self.game_ended = True
+            self.load_next_map()
+
+    def on_game_started(self, args):
+        self.game_started = False
 
 parser = argparse.ArgumentParser(description="Server")
 parser.add_argument('--port', type=int,default=25565,help='the port you want to use for the server')

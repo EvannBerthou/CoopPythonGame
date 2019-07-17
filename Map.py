@@ -30,7 +30,7 @@ class Map:
                 if local_map_hash == map_hash:
                     self.map_data = MapData.from_file(map_path, self.game)
                     self.is_playing = True
-                    self.game.game_socket.send_message("game started")
+                    self.game.game_socket.send_message("game_started")
                     self.create_player()
                 else:
                     print("You don't have this map or your map is incompatible")

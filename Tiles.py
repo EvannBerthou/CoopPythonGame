@@ -324,10 +324,10 @@ class End_Tile(Tile):
     def check_other_end_tile(self):
         if not self.alone:
             if self.other_end_tile.player_on == 1 and self.player_on == 1:
-                self.server_socket.send("end game".encode())
+                self.server_socket.send("end_game".encode())
         else:
             if self.player_on == 2:
-                self.server_socket.send("end game".encode())
+                self.server_socket.send("end_game".encode())
 
     def draw(self, game, offset):
         pygame.draw.rect(game.win, End_Tile.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
