@@ -51,7 +51,6 @@ class InputField:
 
     def send_message(self):
         if self.text.strip(' ') != '':
-            self.chat_box.add_message(self.text)
             self.chat_box.send_message_to_server(self.text)
             self.text = ''
             self.offset = 0
@@ -170,32 +169,37 @@ class ChatBox:
 
         self.game_socket = game_socket
 
+        import random
+        self.name = random.randint(0,1000)
+
     def split_message(self, message):
-        text = ""
+        index = 0
+        text = [""]
 
         parts = message.split(' ')
-        remaining = ""
 
         for i,part in enumerate(parts):
-            tmp = text + part + " "
+            tmp = text[index] + part + " "
 
             if INPUT_FIELD_FONT.size(tmp)[0] > self.history_box.w + 64:
-                for j in range(i, len(parts)):
-                    remaining = remaining + parts[j] + " "
-                break
+                index += 1
+                text.append(" " + part)
             else:
-                text = tmp
+                text[index] = tmp
 
-        self.add_message(text)
-        if remaining: self.split_message(remaining)
+        return text
 
     def add_message(self, message):
-        msg = MESSAGE_FONT.render(message, 1, (255,255,255))
+        msg_width = MESSAGE_FONT.size(message)[0]
 
-        if msg.get_width() >= self.history_box.w:
-            self.split_message(message)
-        else:
-            self.messages.append(msg)
+        msg = [message]
+        if msg_width >= self.history_box.w:
+            msg = self.split_message(message)
+
+        for line in msg:
+            if line.strip(' ') == '': continue #avoid empty lines
+            rendered = MESSAGE_FONT.render(line, 1, (255,255,255))
+            self.messages.append(rendered)
             if self.all_messages_height() > self.history_box.h:
                 #SHOULD NOT DELETE, SHOULD BE KEPT TO ALLOW SCROLLING IN HISTORY
                 del self.messages[0]
@@ -203,7 +207,9 @@ class ChatBox:
 
     #TODO: Send command to server through chat
     def send_message_to_server(self, message):
-        self.game_socket.send_message("chat_message {}".format(message))
+        msg = "{}: {}".format(self.name, message)
+        self.game_socket.send_message("chat_message {}".format(msg))
+        self.add_message(msg)
 
     def create_background(self):
         surface = pygame.Surface((self.w,self.h))
