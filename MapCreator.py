@@ -21,17 +21,24 @@ class Info_Text:
 
 
 class Button:
-    def __init__(self, x,y,size,tile):
+    def __init__(self, x,y,size,tile, btn_type):
         self.x,self.y = x,y
         self.size = size
         self.selected = False
         self.tile = tile
+        self.btn_type = btn_type
 
     def draw(self, game):
-        color = self.tile.color
-        pygame.draw.rect(game.win, color, (self.x, self.y, self.size, self.size))
-        if self.selected:
-            pygame.draw.rect(game.win, (150,150,0), (self.x, self.y, self.size, self.size), 3)
+        if isinstance(self.tile, type):
+            color = self.tile.color
+            pygame.draw.rect(game.win, color, (self.x, self.y, self.size, self.size))
+            if self.selected:
+                pygame.draw.rect(game.win, (150,150,0), (self.x, self.y, self.size, self.size), 3)
+
+        elif isinstance(self.tile, pygame.Surface): #If it's a sprite
+            game.win.blit(self.tile, (self.x, self.y))
+            if self.selected:
+                pygame.draw.rect(game.win, (255,255,255), (self.x, self.y, self.size, self.size), 3)
 
     def is_hovered(self):
         mouse_position = pygame.mouse.get_pos()
@@ -41,6 +48,22 @@ class Button:
     def is_clicked(self):
         mouse_button_down = pygame.mouse.get_pressed()
         return mouse_button_down[0] and self.is_hovered()
+
+    def click(self, game):
+        if self.btn_type == "toolbar":
+            game.linking = False
+            if game.selected_button: game.selected_button.selected = False
+            game.selected_button = self
+            self.selected = True
+            if game.selected_variant: game.selected_variant.selected = False
+            game.info_text.set_text("{} tile selected".format(self.tile.tile_type))
+            game.tile_variants = game.load_tile_variants()
+            game.selected_variant = None
+
+        elif self.btn_type == "variant":
+            if game.selected_variant: game.selected_variant.selected = False
+            self.selected = True
+            game.selected_variant = self
 
 class Game:
     def __init__(self,w,h, map_name):
@@ -61,6 +84,8 @@ class Game:
 
         self.toolbar = self.create_toolbar()
         self.selected_button = self.toolbar[0]
+        self.tile_variants = self.load_tile_variants()
+        self.selected_variant = None
 
         self.linking_tile = None
         self.linking = False
@@ -88,12 +113,13 @@ class Game:
     def toolbar_shortcut(self, key):
         if key >= 10 and key < 20:
             toolbar_id = key - 10
-            if toolbar_id < len(self.toolbar):
-                btn = self.toolbar[toolbar_id]
-                if self.selected_button: self.selected_button.selected = False
-                self.selected_button = btn
-                btn.selected = True
-                self.info_text.set_text("{} tile selected".format(btn.tile.tile_type))
+            mods = pygame.key.get_mods()
+            if mods & KMOD_LSHIFT:
+                if toolbar_id < len(self.tile_variants):
+                    self.tile_variants[toolbar_id].click(self)
+            else:
+                if toolbar_id < len(self.toolbar):
+                    self.toolbar[toolbar_id].click(self)
 
     def on_key_pressed(self):
         keyboard_state = pygame.key.get_pressed()
@@ -106,13 +132,9 @@ class Game:
         board_y = int((mouse_position[1] - self.offset) // self.cell_size)
 
         if board_x < 0 or board_x >= 16 or board_y < 0 or board_y >= 16: #IF OUTISDE THE BOARD
-            for btn in self.toolbar:
+            for btn in self.toolbar + self.tile_variants:
                 if btn.is_clicked():
-                    self.linking = False
-                    if self.selected_button: self.selected_button.selected = False
-                    self.selected_button = btn
-                    btn.selected = True
-                    self.info_text.set_text("{} tile selected".format(btn.tile.tile_type))
+                    btn.click(self)
         else:
             if self.linking:
                 self.link_tiles(board_x, board_y)
@@ -122,7 +144,10 @@ class Game:
             if not isinstance(self.board[board_y][board_x], self.selected_button.tile):
                 self.remove(self.board[board_y][board_x])
                 self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
-                self.board[board_y][board_x].detect_sprite(self.board)
+                if self.selected_variant:
+                    self.board[board_y][board_x].sprite = self.selected_variant.tile
+                else:
+                    self.board[board_y][board_x].detect_sprite(self.board)
                 if isinstance(self.board[board_y][board_x], Tiles.End_Tile):
                     self.add_end_tile(board_y,board_x)
             #IF THE CLICKED TILE TYPE IS THE SAME AS THE TOOLBAR TILE TYPE
@@ -194,6 +219,7 @@ class Game:
         self.win.fill((0,0,0))
         self.draw_grid()
         self.draw_toolbar()
+        self.draw_variants()
         self.info_text.draw(self)
         pygame.display.update()
 
@@ -222,7 +248,7 @@ class Game:
 
         for i in range(len(tiles_id)):
             tile = tiles_id[i]
-            buttons.append(Button(i * self.cell_size + self.offset, start_y, self.cell_size, tile))
+            buttons.append(Button(i * self.cell_size + self.offset, start_y, self.cell_size, tile, "toolbar"))
         buttons[0].selected = True
         return buttons
 
@@ -231,6 +257,18 @@ class Game:
             if btn.is_hovered(): btn.color = (255,0,0)
             else: btn.color = (0,255,0)
             btn.draw(self)
+
+    def draw_variants(self):
+        for btn in self.tile_variants:
+            btn.draw(self)
+
+    def load_tile_variants(self):
+        start_y = self.grid_size * self.cell_size + self.offset + 16
+        x_offset = len(self.toolbar) * self.cell_size + 32
+        buttons = []
+        for i,sprite in enumerate(self.selected_button.tile.load_all_sprites()):
+            buttons.append(Button(i * (self.cell_size + 5) + self.offset + x_offset,start_y, self.cell_size, sprite, "variant"))
+        return buttons
 
     def get_map_folder(self):
         asset_folder = os.path.join(os.path.dirname(__file__), "assets")

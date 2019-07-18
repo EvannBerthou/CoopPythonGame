@@ -27,11 +27,11 @@ def load_tiles_folder():
 
 #TODO: ADD SPRITES FOR ALL TILES
 class Tile:
+    tiles_folder = load_tiles_folder()
     def __init__(self, data):
         self.x,self.y = data["x"], data["y"]
         self.size = 48
         self.collide = False
-        self.tiles_folder = load_tiles_folder()
 
     def draw(self, game, offset): pass
     def to_json_data(self): pass
@@ -41,6 +41,8 @@ class Tile:
     def on_leave(self):pass
     def toggle(self,board):pass
     def detect_sprite(self,board): pass
+    def get_sprite_count(): return 0
+    def load_all_sprites(): return []
     #TODO: Unlink linked tiles when on of the two tiles is removed
     def unlink(self): pass
 
@@ -65,13 +67,13 @@ class Ground(Tile):
     color = (255,248,220)
     tile_type = "ground"
 
-    def get_sprite_count(self):
-        tile_folder = os.path.join(self.tiles_folder, "Ground")
+    def get_sprite_count():
+        tile_folder = os.path.join(Tile.tiles_folder, "Ground")
         return len(os.listdir(tile_folder))
 
-    def load_all_sprites(self):
-        tiles_folder = os.path.join(self.tiles_folder, "Ground")
-        return [pygame.image.load(os.path.join(tiles_folder, "{}.jpg".format(i))) for i in range(self.max_sprite)]
+    def load_all_sprites():
+        tiles_folder = os.path.join(Tile.tiles_folder, "Ground")
+        return [pygame.image.load(os.path.join(tiles_folder, "{}.jpg".format(i))) for i in range(Ground.get_sprite_count())]
 
     def load_sprite(self, sprite_id):
         return self.sprites[sprite_id]
@@ -88,13 +90,13 @@ class Ground(Tile):
             ((0,1),)        :7, #BOTTOM
             ((0,1),(1,0))   :8, #BOTTOM RIGHT
 
-			((-1,0),(0,-1),(0,1),(1,0)) :9,  #TOP BOTTOM LEFT RIGHT
+            ((-1,0),(0,-1),(0,1),(1,0)) :9,  #TOP BOTTOM LEFT RIGHT
             ((-1,0),(0,-1),(0,1))       :10, #TOP BOTTOM LEFT
-			((0,-1), (0,1), (1,0))   	:11, #TOP BOTTOM RIGHT
-			((-1, 0), (0, -1), (1, 0))  :12, #TOP LEFT RIGHT
-			((-1, 0), (0, 1), (1, 0))   :13, #BOTTOM LEFT RIGHT
-			((-1, 0), (1, 0))			:14, #LEFT RIGHT
-			((0, -1), (0, 1))			:15, #TOP BOTTOM
+            ((0,-1), (0,1), (1,0))   	:11, #TOP BOTTOM RIGHT
+            ((-1, 0), (0, -1), (1, 0))  :12, #TOP LEFT RIGHT
+            ((-1, 0), (0, 1), (1, 0))   :13, #BOTTOM LEFT RIGHT
+            ((-1, 0), (1, 0))		:14, #LEFT RIGHT
+            ((0, -1), (0, 1))		:15, #TOP BOTTOM
         }[tuple(offset)]
 
     def detect_sprite(self, board):
@@ -117,8 +119,8 @@ class Ground(Tile):
         Tile.__init__(self,data)
         self.collide = False
         self.sprite_id = 0
-        self.max_sprite = self.get_sprite_count()
-        self.sprites = self.load_all_sprites()
+        self.sprites = Ground.load_all_sprites()
+        self.max_spirte = len(self.sprites)
         self.sprite = self.load_sprite(data["sprite_id"] if "sprite_id" in data else 0)
 
     def draw(self, game, offset):
@@ -140,13 +142,13 @@ class Wall(Tile):
     color = (255,0,255)
     tile_type = "wall"
 
-    def get_sprite_count(self):
-        tile_folder = os.path.join(self.tiles_folder, "Wall")
+    def get_sprite_count():
+        tile_folder = os.path.join(Tile.tiles_folder, "Wall")
         return len(os.listdir(tile_folder))
 
-    def load_all_sprites(self):
-        tiles_folder = os.path.join(self.tiles_folder, "Wall")
-        return [pygame.image.load(os.path.join(tiles_folder, "{}.png".format(i))) for i in range(self.max_sprite)]
+    def load_all_sprites():
+        tiles_folder = os.path.join(Tile.tiles_folder, "Wall")
+        return [pygame.image.load(os.path.join(tiles_folder, "{}.png".format(i))) for i in range(Wall.get_sprite_count())]
 
     def load_sprite(self, sprite_id):
         return self.sprites[sprite_id]
@@ -155,8 +157,8 @@ class Wall(Tile):
         Tile.__init__(self,data)
         self.collide = True
         self.sprite_id = data["sprite_id"] if "sprite_id" in data else 0
-        self.max_sprite = self.get_sprite_count()
-        self.sprites = self.load_all_sprites()
+        self.sprites = Wall.load_all_sprites()
+        self.max_sprite = len(self.sprites)
         self.sprite = self.load_sprite(self.sprite_id)
 
     def draw(self, game, offset):
