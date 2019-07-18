@@ -33,10 +33,7 @@ class ClientThread(Thread):
                 r = self.socket.recv(2048).decode()
                 if r.strip(' ') != "":
                     self.player_message(r)
-                    # for client in ClientThread.clients:
-                        # if client is not self:
-                            # client.sendall(r)
-                    self.drawer.addstr(r)
+                    # self.drawer.addstr(r)
                 else:
                     #WHEN 1 PLAYER IS DISCONNECTED, DISCONNECT ALL OTHER PLAYERS
                     self.drawer.addstr("[-] Client disconnect {}:{}".format(self.ip, self.port))
@@ -69,6 +66,8 @@ class ClientThread(Thread):
         message_name = parts[0]
         message_args = parts[1:]
 
+        self.drawer.addstr(" ".join(args))
+
         if message_name in commands:
             commands[message_name](message_args)
         else:
@@ -78,7 +77,7 @@ class ClientThread(Thread):
         #start with 1 because 0 is the player name
         if args[1].startswith("/"):
             name = args[1][1:] #remove the slash
-            #If the output is in multiple line (eg list_aliases), only the last line will be sent
+            #TODO: If the output is in multiple line (eg list_aliases), only the last line will be sent
             self.server.command("{} {}".format(name, args[2:]))
             self.sendall("chat_message {}".format(" ".join(args)))
             self.sendall("chat_message {}".format(self.drawer.last_message)) #Send the output to the player who performed the command
@@ -332,7 +331,6 @@ class Server:
             client.sendall(message)
 
     def end_game(self, args):
-        self.drawer.addstr("t")
         if not self.game_ended:
             self.drawer.addstr("Game ended")
             self.game_ended = True

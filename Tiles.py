@@ -139,20 +139,42 @@ class Ground(Tile):
 class Wall(Tile):
     color = (255,0,255)
     tile_type = "wall"
+
+    def get_sprite_count(self):
+        tile_folder = os.path.join(self.tiles_folder, "Wall")
+        return len(os.listdir(tile_folder))
+
+    def load_all_sprites(self):
+        tiles_folder = os.path.join(self.tiles_folder, "Wall")
+        return [pygame.image.load(os.path.join(tiles_folder, "{}.png".format(i))) for i in range(self.max_sprite)]
+
+    def load_sprite(self, sprite_id):
+        return self.sprites[sprite_id]
+
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = True
+        self.sprite_id = data["sprite_id"] if "sprite_id" in data else 0
+        self.max_sprite = self.get_sprite_count()
+        self.sprites = self.load_all_sprites()
+        self.sprite = self.load_sprite(self.sprite_id)
 
     def draw(self, game, offset):
-        pygame.draw.rect(game.win, Wall.color, (self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
+        game.win.blit(self.sprite, (self.x * self.size + offset, self.y * self.size + offset))
+        # pygame.draw.rect(game.win, Wall.color, (self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
 
     def to_json_data(self):
         json_data = json.dumps({
             "x":int(self.x),
             "y":int(self.y),
-            "type": Wall.tile_type
+            "type": Wall.tile_type,
+            "sprite_id": self.sprite_id
             })
         return json_data
+
+    def toggle(self,board):
+        self.sprite_id = (self.sprite_id + 1) % self.max_sprite
+        self.sprite = self.load_sprite(self.sprite_id)
 
 class Door(Tile):
     color = (255,0,0)
