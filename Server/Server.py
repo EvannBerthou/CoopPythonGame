@@ -66,8 +66,6 @@ class ClientThread(Thread):
         message_name = parts[0]
         message_args = parts[1:]
 
-        self.drawer.addstr(" ".join(args))
-
         if message_name in commands:
             commands[message_name](message_args)
         else:
@@ -75,6 +73,7 @@ class ClientThread(Thread):
 
     def handle_player_chat_message(self, args):
         #start with 1 because 0 is the player name
+        self.drawer.addstr(" ".join(args))
         if args[1].startswith("/"):
             name = args[1][1:] #remove the slash
             #TODO: If the output is in multiple line (eg list_aliases), only the last line will be sent

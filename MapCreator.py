@@ -21,12 +21,13 @@ class Info_Text:
 
 
 class Button:
-    def __init__(self, x,y,size,tile, btn_type):
+    def __init__(self, x,y,size,tile, btn_type,id):
         self.x,self.y = x,y
         self.size = size
         self.selected = False
         self.tile = tile
         self.btn_type = btn_type
+        self.id = id
 
     def draw(self, game):
         if isinstance(self.tile, type):
@@ -146,6 +147,7 @@ class Game:
                 self.board[board_y][board_x] = self.selected_button.tile({"x":board_x,"y":board_y})
                 if self.selected_variant:
                     self.board[board_y][board_x].sprite = self.selected_variant.tile
+                    self.board[board_y][board_x].sprite_id = self.selected_variant.id
                 else:
                     self.board[board_y][board_x].detect_sprite(self.board)
                 if isinstance(self.board[board_y][board_x], Tiles.End_Tile):
@@ -248,7 +250,7 @@ class Game:
 
         for i in range(len(tiles_id)):
             tile = tiles_id[i]
-            buttons.append(Button(i * self.cell_size + self.offset, start_y, self.cell_size, tile, "toolbar"))
+            buttons.append(Button(i * self.cell_size + self.offset, start_y, self.cell_size, tile, "toolbar", i))
         buttons[0].selected = True
         return buttons
 
@@ -267,7 +269,7 @@ class Game:
         x_offset = len(self.toolbar) * self.cell_size + 32
         buttons = []
         for i,sprite in enumerate(self.selected_button.tile.load_all_sprites()):
-            buttons.append(Button(i * (self.cell_size + 5) + self.offset + x_offset,start_y, self.cell_size, sprite, "variant"))
+            buttons.append(Button(i * (self.cell_size + 5) + self.offset + x_offset,start_y, self.cell_size, sprite, "variant", i))
         return buttons
 
     def get_map_folder(self):
