@@ -155,6 +155,8 @@ class Game:
             #IF THE CLICKED TILE TYPE IS THE SAME AS THE TOOLBAR TILE TYPE
             else:
                 tile = self.board[board_y][board_x]
+                if self.selected_variant:
+                    tile.sprite = self.selected_variant.tile
                 tile.toggle(self.board)
                 self.special_tiles(tile)
 

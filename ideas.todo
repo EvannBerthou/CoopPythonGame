@@ -40,7 +40,7 @@ Todo:
   - [ ] Create sprites:
     - [ ] Tiles:
       - [X] Ground
-      - [ ] Wall
+      - [X] Wall
       - [ ] Doors
       - [ ] Plate
       - [ ] Teleporter

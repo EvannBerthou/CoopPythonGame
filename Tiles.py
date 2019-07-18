@@ -118,10 +118,10 @@ class Ground(Tile):
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = False
-        self.sprite_id = 0
+        self.sprite_id = data["sprite_id"] if "sprite_id" in data else 0
         self.sprites = Ground.load_all_sprites()
         self.max_spirte = len(self.sprites)
-        self.sprite = self.load_sprite(data["sprite_id"] if "sprite_id" in data else 0)
+        self.sprite = self.load_sprite(self.sprite_id)
 
     def draw(self, game, offset):
         game.win.blit(self.sprite, (self.x * self.size + offset, self.y * self.size + offset))
@@ -173,10 +173,6 @@ class Wall(Tile):
             "sprite_id": self.sprite_id
             })
         return json_data
-
-    def toggle(self,board):
-        self.sprite_id = (self.sprite_id + 1) % self.max_sprite
-        self.sprite = self.load_sprite(self.sprite_id)
 
 class Door(Tile):
     color = (255,0,0)
