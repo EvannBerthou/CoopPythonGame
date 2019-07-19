@@ -170,6 +170,7 @@ class Game:
     def add_end_tile(self, board_y, board_x):
         if len(self.end_tiles) == 2:
             self.info_text.set_text("There is already 2 End Tiles on the board")
+            self.board[board_y][board_x] = Tiles.Empty({"x":board_x,"y":board_y})
             return
 
         self.end_tiles.append(self.board[board_y][board_x])
@@ -270,7 +271,7 @@ class Game:
         start_y = self.grid_size * self.cell_size + self.offset + 16
         x_offset = len(self.toolbar) * self.cell_size + 32
         buttons = []
-        for i,sprite in enumerate(self.selected_button.tile.load_all_sprites()):
+        for i,sprite in enumerate(Tiles.load_sprites_in_folder(self.selected_button.tile.tile_type)):
             buttons.append(Button(i * (self.cell_size + 5) + self.offset + x_offset,start_y, self.cell_size, sprite, "variant", i))
         return buttons
 

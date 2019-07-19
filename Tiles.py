@@ -4,7 +4,7 @@ import os
 
 def from_json_data(json_data):
     tile_type = {
-        "Empty": Empty,
+        "empty": Empty,
         "wall": Wall,
         "ground": Ground,
         "door": Door,
@@ -24,10 +24,19 @@ def load_tiles_folder():
     tiles_folder = os.path.join(asset_folder, "Tiles")
     return tiles_folder
 
+TILES_FOLDER = load_tiles_folder()
+
+def get_sprite_count(folder_name):
+    tile_folder = os.path.join(TILES_FOLDER, folder_name)
+    return len(os.listdir(tile_folder))
+
+def load_sprites_in_folder(folder_name):
+    tiles_folder = os.path.join(TILES_FOLDER, folder_name)
+    return [pygame.image.load(os.path.join(tiles_folder, "{}.jpg".format(i))) for i in range(get_sprite_count(folder_name))]
+
 
 #TODO: ADD SPRITES FOR ALL TILES
 class Tile:
-    tiles_folder = load_tiles_folder()
     def __init__(self, data):
         self.x,self.y = data["x"], data["y"]
         self.size = 48
@@ -41,14 +50,15 @@ class Tile:
     def on_leave(self):pass
     def toggle(self,board):pass
     def detect_sprite(self,board): pass
-    def get_sprite_count(): return 0
-    def load_all_sprites(): return []
     #TODO: Unlink linked tiles when on of the two tiles is removed
     def unlink(self): pass
 
+    def load_sprite(self, sprite_id):
+        return self.sprites[sprite_id]
+
 class Empty(Tile):
     color = (255,255,255)
-    tile_type = "Empty"
+    tile_type = "empty"
     def __init__(self,data):
         Tile.__init__(self, data)
 
@@ -66,17 +76,6 @@ class Empty(Tile):
 class Ground(Tile):
     color = (255,248,220)
     tile_type = "ground"
-
-    def get_sprite_count():
-        tile_folder = os.path.join(Tile.tiles_folder, "Ground")
-        return len(os.listdir(tile_folder))
-
-    def load_all_sprites():
-        tiles_folder = os.path.join(Tile.tiles_folder, "Ground")
-        return [pygame.image.load(os.path.join(tiles_folder, "{}.jpg".format(i))) for i in range(Ground.get_sprite_count())]
-
-    def load_sprite(self, sprite_id):
-        return self.sprites[sprite_id]
 
     def sprite_tuple_to_id(self, offset):
         return {
@@ -119,7 +118,7 @@ class Ground(Tile):
         Tile.__init__(self,data)
         self.collide = False
         self.sprite_id = data["sprite_id"] if "sprite_id" in data else 0
-        self.sprites = Ground.load_all_sprites()
+        self.sprites = load_sprites_in_folder(Ground.tile_type)
         self.max_spirte = len(self.sprites)
         self.sprite = self.load_sprite(self.sprite_id)
 
@@ -142,22 +141,11 @@ class Wall(Tile):
     color = (255,0,255)
     tile_type = "wall"
 
-    def get_sprite_count():
-        tile_folder = os.path.join(Tile.tiles_folder, "Wall")
-        return len(os.listdir(tile_folder))
-
-    def load_all_sprites():
-        tiles_folder = os.path.join(Tile.tiles_folder, "Wall")
-        return [pygame.image.load(os.path.join(tiles_folder, "{}.jpg".format(i))) for i in range(Wall.get_sprite_count())]
-
-    def load_sprite(self, sprite_id):
-        return self.sprites[sprite_id]
-
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = True
         self.sprite_id = data["sprite_id"] if "sprite_id" in data else 0
-        self.sprites = Wall.load_all_sprites()
+        self.sprites = load_sprites_in_folder(Wall.tile_type)
         self.max_sprite = len(self.sprites)
         self.sprite = self.load_sprite(self.sprite_id)
 
@@ -320,17 +308,6 @@ class End_Tile(Tile):
     color = (255,255,0)
     tile_type = "end"
 
-    def get_sprite_count():
-        tile_folder = os.path.join(Tile.tiles_folder, "End_Tile")
-        return len(os.listdir(tile_folder))
-
-    def load_all_sprites():
-        tiles_folder = os.path.join(Tile.tiles_folder, "End_Tile")
-        return [pygame.image.load(os.path.join(tiles_folder, "{}.jpg".format(i))) for i in range(End_Tile.get_sprite_count())]
-
-    def load_sprite(self, sprite_id):
-        return self.sprites[sprite_id]
-
     def __init__(self, data):
         Tile.__init__(self,data)
         self.collide = False
@@ -341,7 +318,7 @@ class End_Tile(Tile):
         self.server_socket = None
 
         self.sprite_id = 0
-        self.sprites = End_Tile.load_all_sprites()
+        self.sprites = load_sprites_in_folder(End_Tile.tile_type)
         self.max_sprite = len(self.sprites)
         self.sprite = self.load_sprite(self.sprite_id)
 
