@@ -1,9 +1,9 @@
 Ideas:
   - [ ] Server:
     - [ ] Commands:
-      - [ ] add_map <map_name> : add the map to playlist
-      - [ ] next_map : loads the next map in the playlist
-      - [ ] clear_maps : clear the playlist
+      - [X] add_map <map_name> : add the map to playlist
+      - [X] next_map : loads the next map in the playlist
+      - [X] clear_maps : clear the playlist
       - [ ] load_playlist <file_name> : load a playlist from file
       - [X] Add custom aliases:
         - [X] Save them in a file and load them on server start

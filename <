@@ -243,9 +243,8 @@ class Server:
         self.save_aliases()
 
     def get_alias(self, args):
-        parts = args.split(' ')
-        if parts[0] in self.aliases:
-            alias = self.aliases[parts[0]].split(' ')
+        if args[0] in self.aliases:
+            alias = self.aliases[args[0]].split(' ')
             alias_name = alias[0]
             alias_args = alias[1:] if len(alias) > 1 else None
             return (alias_name, alias_args)
@@ -273,45 +272,40 @@ class Server:
                 "exit": self.CloseServer,
                 "load_map": self.load_map,
                 "reload_map": self.reload_map,
-                "add_map": self.add_map,
+                "dadd_map": self.add_map,
                 "next_map": self.load_next_map,
-                "clear_playlist": self.clear_playlist,
-                "load_playlist": self.load_playlist,
-                "list_playlist": self.list_playlist,
+                "clear_maps": self.clear_maps,
+                "load_playlist": self.load_playlist,#TODO
                 "clear": self.drawer.clear_screen,
                 "list": self.player_count,
                 "uptime": self.uptime,
                 "set_alias": self.add_aliases,
                 "get_alias": self.print_alias,
                 "list_aliases": self.list_aliases,
-                #TODO: "help", self.print_help,
         }
 
         command_name = command.split(' ')[0]
         args = command.split(' ')[1:]
-        alias_name,alias_args = self.get_alias(command)
+        alias_name,alias_args = self.get_alias(command_name)
 
-        if command_name in commands:
-            commands[command_name](args)
-        elif alias_name:
+        if alias_name in commands:
             if alias_args:
                 commands[alias_name](alias_args)
             else:
                 commands[alias_name](args)
+        elif command_name in commands:
+            commands[command_name](args)
         elif command != "":
             self.drawer.addstr("Invalid command")
 
     def add_map(self, args):
-        if not args:
-            self.drawer.addstr("No map name provided")
-            return
+        print("t")
         map_name = args[0]
         map_path = os.path.join(self.map_folder, map_name)
         if os.path.exists(map_path):
             self.map_playlist.append(map_name)
-            self.drawer.addstr("Map added to the playlist")
         else:
-            self.drawer.addstr("There is no map named '{}'".format(map_name))
+            self.addstr("There is no map named '{}'".format(map_name))
 
     #ONLY RELOADS FOR NOW
     def load_next_map(self, *args):
@@ -321,32 +315,11 @@ class Server:
         else: #If there is no more map in the playlist, just reload the current loaded one
             self.reload_map()
 
-    def clear_playlist(self, args):
+    def clear_maps(self, args):
         self.map_playlist.clear()
-        self.drawer.addstr("Playlist cleared")
 
     def load_playlist(self, args):
-        if not args:
-            self.drawer.addstr("No file path provided")
-            return
-
-        file_path = " ".join(args)
-        if os.path.exists(file_path):
-            with open(file_path) as f:
-                for line in f.read().splitlines():
-                    self.add_map([line])
-        else:
-            self.drawer.addstr("The given file does not exists")
-
-
-    def list_playlist(self, args):
-        if self.map_playlist:
-            self.drawer.addstr("Map loaded in the playlist : ")
-            for map_name in self.map_playlist:
-                self.drawer.addstr("    - {}".format(map_name))
-        else:
-            self.drawer.addstr("There is no map in the playlist currently")
-
+        pass
 
     def hash_map(self, map_path):
         with open(map_path, 'r') as f:
