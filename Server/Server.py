@@ -76,10 +76,10 @@ class ClientThread(Thread):
         self.drawer.addstr(" ".join(args))
         if args[1].startswith("/"):
             name = args[1][1:] #remove the slash
-            #TODO: If the output is in multiple line (eg list_aliases), only the last line will be sent
             self.server.command("{} {}".format(name, args[2:]))
-            self.sendall("chat_message {}".format(" ".join(args)))
+            #TODO: If the output is in multiple line (eg list_aliases), only the last line will be sent
             self.sendall("chat_message {}".format(self.drawer.last_message)) #Send the output to the player who performed the command
+            self.sendall("chat_message {}".format(" ".join(args)))
         else:
             for client in ClientThread.clients:
                 client.sendall("chat_message {}".format(" ".join(args)))
@@ -204,7 +204,7 @@ class Server:
         self.socket.close()
 
     def player_count(self, *args):
-        self.drawer.addstr("{} players conncted".format(len(ClientThread.clients)))
+        self.drawer.addstr("{} players connected".format(len(ClientThread.clients)))
 
     def uptime(self, *args):
         now = time.time()

@@ -1,25 +1,24 @@
 Ideas:
   - [ ] Server:
-    - [ ] Commands:
+    - [X] Commands:
       - [X] add_map <map_name> : add the map to playlist
       - [X] next_map : loads the next map in the playlist
       - [X] clear_maps : clear the playlist
-      - [ ] load_playlist <file_name> : load a playlist from file
+      - [X] load_playlist <file_name> : load a playlist from file
       - [X] Add custom aliases:
         - [X] Save them in a file and load them on server start
         - [X] list_aliases : print all loaded aliases
-    - [ ] Playlist:
-      - [ ] File:
-        - [ ] a list of map name to load in order
-  - [ ] Refactor commands to be class
+    - [X] Playlist:
+      - [X] File:
+        - [X] a list of map name to load in order
+    - [ ] Refactor commands to be class
 
   - [ ] Map:
     - [ ] Tiles:
       - [X] Teleporters: Go from a tile to another
       - [ ] Player switch: when both player are on the 2 tiles, they switch positions
       - [ ] One team door: only one player can go through that door
-      - [ ] End tile: Goal of the map. Map ends when both player are on the end tile
-      - [ ] Automatic sprite detection based on surrounding tiles (Started)
+      - [X] End tile: Goal of the map. Map ends when both player are on the end tile
 
   - [ ] Special modes:
     - [ ] Darkness mode: you can only see the tiles around you
@@ -29,7 +28,7 @@ Ideas:
   - [ ] Config file for keybindings
   - [ ] Ingame chat
     - [X] When a message in added in the chat box, send it to other players
-    - [X] Handle player command on server
+    - [X] Handle player command on server (Almost, bug with printed return)
     - [ ] Notification on message recieved when the chat is not opened
     - [ ] Maybe add a nickname system ? In config file ?
 
