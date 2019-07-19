@@ -215,6 +215,13 @@ class Game:
         self.info_text.set_text("Plate linked to door")
 
     def link_teleporters(self, tep1, tep2):
+        if tep1.sprite_id != tep2.sprite_id:
+            self.info_text.set_text("You can only link 2 teleporters with the same sprite")
+            return
+        if tep1 == tep2:
+            self.info_text.set_text("You can't link a teleporter with itself")
+            return
+
         tep1.link_to_teleporter(tep2)
         tep2.link_to_teleporter(tep1)
         self.info_text.set_text("Teleporters linked")

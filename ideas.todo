@@ -43,7 +43,7 @@ Todo:
       - [ ] Doors
       - [ ] Plate
       - [ ] Teleporter
-      - [ ] End tile
+      - [X] End tile
     - [ ] Players
   - [X] Refactor the way sprites are loaded (1 method for all type of sprites)
   - [ ] Sounds (?)

@@ -266,6 +266,12 @@ class Teleporter(Tile):
         self.linked_teleporter = None
         self.should_teleport = True
 
+        self.sprite_id = data["sprite_id"] if "sprite_id" in data else 0
+        self.sprites = load_sprites_in_folder(Teleporter.tile_type)
+        self.max_sprite = len(self.sprites)
+        self.sprite = self.load_sprite(self.sprite_id)
+
+
     def get_linked_teleporter_pos(self, data):
         if "linked_teleporter_x" in data:
             teleporter_x = data["linked_teleporter_x"]
@@ -283,7 +289,8 @@ class Teleporter(Tile):
             "y":int(self.y),
             "type": Teleporter.tile_type,
             "linked_teleporter_x": self.linked_teleporter.x if self.linked_teleporter else -1,
-            "linked_teleporter_y": self.linked_teleporter.y if self.linked_teleporter else -1
+            "linked_teleporter_y": self.linked_teleporter.y if self.linked_teleporter else -1,
+            "sprite_id": self.sprite_id
             })
         return json_data
 
@@ -302,7 +309,7 @@ class Teleporter(Tile):
         self.should_teleport = True
 
     def draw(self, game, offset):
-        pygame.draw.rect(game.win, Teleporter.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
+        game.win.blit(self.sprite, (self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
 
 class End_Tile(Tile):
     color = (255,255,0)
