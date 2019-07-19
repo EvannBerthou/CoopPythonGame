@@ -11,7 +11,7 @@ Ideas:
     - [X] Playlist:
       - [X] File:
         - [X] a list of map name to load in order
-    - [ ] Refactor commands to be class
+    - [ ] Refactor commands to be class (?)
 
   - [ ] Map:
     - [ ] Tiles:

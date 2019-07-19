@@ -75,6 +75,8 @@ class Game:
         self.cell_size = 48
         self.offset = (self.w - (self.grid_size * self.cell_size)) / 2
 
+        self.end_tiles = []
+
         self.map_folder = self.get_map_folder()
         self.map_name = map_name
         self.board = None
@@ -92,8 +94,6 @@ class Game:
         self.linking = False
 
         self.info_text = Info_Text(self.offset, self.h - 50, 24)
-
-        self.end_tiles = []
 
     def run(self):
         while self.running:
@@ -141,6 +141,7 @@ class Game:
                 self.link_tiles(board_x, board_y)
                 return
 
+            #TODO: Refactor this horror
             #CREATE A NEW TILE
             if not isinstance(self.board[board_y][board_x], self.selected_button.tile):
                 self.remove(self.board[board_y][board_x])
@@ -169,7 +170,6 @@ class Game:
     def add_end_tile(self, board_y, board_x):
         if len(self.end_tiles) == 2:
             self.info_text.set_text("There is already 2 End Tiles on the board")
-            self.board[board_y][board_x] = Tiles.Empty({"x":board_x,"y":board_y})
             return
 
         self.end_tiles.append(self.board[board_y][board_x])
@@ -291,6 +291,7 @@ class Game:
                     if tile.linked_door_pos != (-1,-1):
                         tile.link_to_door(board[tile.linked_door_pos[1]][tile.linked_door_pos[0]])
                 if isinstance(tile, Tiles.End_Tile):
+                    self.end_tiles.append(tile)
                     if tile.other_end_tile_pos != (-1,-1):
                         tile.set_other_end_tile(board[tile.other_end_tile_pos[1]][tile.other_end_tile_pos[0]])
 
