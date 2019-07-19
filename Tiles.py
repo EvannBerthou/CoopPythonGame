@@ -148,7 +148,7 @@ class Wall(Tile):
 
     def load_all_sprites():
         tiles_folder = os.path.join(Tile.tiles_folder, "Wall")
-        return [pygame.image.load(os.path.join(tiles_folder, "{}.png".format(i))) for i in range(Wall.get_sprite_count())]
+        return [pygame.image.load(os.path.join(tiles_folder, "{}.jpg".format(i))) for i in range(Wall.get_sprite_count())]
 
     def load_sprite(self, sprite_id):
         return self.sprites[sprite_id]
@@ -319,6 +319,18 @@ class Teleporter(Tile):
 class End_Tile(Tile):
     color = (255,255,0)
     tile_type = "end"
+
+    def get_sprite_count():
+        tile_folder = os.path.join(Tile.tiles_folder, "End_Tile")
+        return len(os.listdir(tile_folder))
+
+    def load_all_sprites():
+        tiles_folder = os.path.join(Tile.tiles_folder, "End_Tile")
+        return [pygame.image.load(os.path.join(tiles_folder, "{}.jpg".format(i))) for i in range(End_Tile.get_sprite_count())]
+
+    def load_sprite(self, sprite_id):
+        return self.sprites[sprite_id]
+
     def __init__(self, data):
         Tile.__init__(self,data)
         self.collide = False
@@ -327,6 +339,11 @@ class End_Tile(Tile):
         self.other_end_tile_pos = self.get_other_end_tile_pos(data)
         self.other_end_tile = None
         self.server_socket = None
+
+        self.sprite_id = 0
+        self.sprites = End_Tile.load_all_sprites()
+        self.max_sprite = len(self.sprites)
+        self.sprite = self.load_sprite(self.sprite_id)
 
     def get_other_end_tile_pos(self, data):
         if "other_end_tile_x" in data:
@@ -350,7 +367,8 @@ class End_Tile(Tile):
                 self.server_socket.send("end_game".encode())
 
     def draw(self, game, offset):
-        pygame.draw.rect(game.win, End_Tile.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
+        game.win.blit(self.sprite,(self.x * self.size + offset, self.y * self.size + offset))
+        # pygame.draw.rect(game.win, End_Tile.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
 
     def on_step(self, player):
         self.player_on += 1

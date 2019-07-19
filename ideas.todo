@@ -45,4 +45,5 @@ Todo:
       - [ ] Teleporter
       - [ ] End tile
     - [ ] Players
+  - [ ] Refactor the way sprites are loaded (1 method for all type of sprites)
   - [ ] Sounds (?)
