@@ -35,7 +35,6 @@ def load_sprites_in_folder(folder_name):
     return [pygame.image.load(os.path.join(tiles_folder, "{}.jpg".format(i))) for i in range(get_sprite_count(folder_name))]
 
 
-#TODO: ADD SPRITES FOR ALL TILES
 class Tile:
     def __init__(self, data):
         self.x,self.y = data["x"], data["y"]
