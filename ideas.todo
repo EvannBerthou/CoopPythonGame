@@ -37,12 +37,12 @@ Ideas:
 
 Todo:
   - [ ] Create sprites:
-    - [ ] Tiles:
+    - [X] Tiles:
       - [X] Ground
       - [X] Wall
       - [X] Doors
-      - [ ] Empty 
-      - [ ] Plate
+      - [X] Empty 
+      - [X] Plate
       - [X] Starting
       - [X] Teleporter
       - [X] End tile

@@ -61,9 +61,14 @@ class Empty(Tile):
     tile_type = "empty"
     def __init__(self,data):
         Tile.__init__(self, data)
+        self.collide = True
+        self.sprite_id = 0
+        self.sprites = load_sprites_in_folder(Empty.tile_type)
+        self.max_spirte = len(self.sprites)
+        self.sprite = self.load_sprite(self.sprite_id)
 
     def draw(self, game, offset):
-        pygame.draw.rect(game.win, Empty.color,(self.x * self.size + offset, self.y * self.size + offset, self.size, self.size),1)
+        game.win.blit(self.sprite, (self.x * self.size + offset, self.y * self.size + offset))
 
     def to_json_data(self):
         json_data = json.dumps({
@@ -73,29 +78,69 @@ class Empty(Tile):
             })
         return json_data
 
+    def sprite_tuple_to_id(self, offset):
+        return {
+            ((-1,0),(0,-1)) :0, #top left
+            ((0,-1),)       :1, #top
+            ((0,-1),(1,0))  :2, #top right
+            ((-1,0),)       :3, #left
+            ()              :4, #center
+            ((1,0),)        :5, #right
+            ((-1,0),(0,1))  :6, #bottom left
+            ((0,1),)        :7, #bottom
+            ((0,1),(1,0))   :8, #bottom right
+
+            ((-1,0),(0,-1),(0,1),(1,0)) :9,  #top bottom left right
+            ((-1,0),(0,-1),(0,1))       :10, #top bottom left
+            ((0,-1), (0,1), (1,0))   	:11, #top bottom right
+            ((-1, 0), (0, -1), (1, 0))  :12, #top left right
+            ((-1, 0), (0, 1), (1, 0))   :13, #bottom left right
+            ((-1, 0), (1, 0))		:14, #left right
+            ((0, -1), (0, 1))		:15, #top bottom
+        }[tuple(offset)]
+
+    def detect_sprite(self, board):
+        direction = []
+        for i in [(-1,0),(1,0),(0,-1),(0,1)]:
+            x = self.x + i[0]
+            y = self.y + i[1]
+            if x >= 0 and x < len(board[0]) and y >= 0 and y < len(board[0]): #IF ITS ON THE BOARD
+                tile = board[y][x]
+                if not isinstance(tile, Empty):
+                    direction.append(i)
+            else:
+                direction.append(i)
+
+        sprite_id = self.sprite_tuple_to_id(sorted(direction))
+        self.sprite_id = sprite_id
+        self.sprite = self.load_sprite(sprite_id)
+
+    def toggle(self, board):
+        self.detect_sprite(board)
+
 class Ground(Tile):
     color = (255,248,220)
     tile_type = "ground"
 
     def sprite_tuple_to_id(self, offset):
         return {
-            ((-1,0),(0,-1)) :0, #TOP LEFT
-            ((0,-1),)       :1, #TOP
-            ((0,-1),(1,0))  :2, #TOP RIGHT
-            ((-1,0),)       :3, #LEFT
-            ()              :4, #CENTER
-            ((1,0),)        :5, #RIGHT
-            ((-1,0),(0,1))  :6, #BOTTOM LEFT
-            ((0,1),)        :7, #BOTTOM
-            ((0,1),(1,0))   :8, #BOTTOM RIGHT
+            ((-1,0),(0,-1)) :0, #top left
+            ((0,-1),)       :1, #top
+            ((0,-1),(1,0))  :2, #top right
+            ((-1,0),)       :3, #left
+            ()              :4, #center
+            ((1,0),)        :5, #right
+            ((-1,0),(0,1))  :6, #bottom left
+            ((0,1),)        :7, #bottom
+            ((0,1),(1,0))   :8, #bottom right
 
-            ((-1,0),(0,-1),(0,1),(1,0)) :9,  #TOP BOTTOM LEFT RIGHT
-            ((-1,0),(0,-1),(0,1))       :10, #TOP BOTTOM LEFT
-            ((0,-1), (0,1), (1,0))   	:11, #TOP BOTTOM RIGHT
-            ((-1, 0), (0, -1), (1, 0))  :12, #TOP LEFT RIGHT
-            ((-1, 0), (0, 1), (1, 0))   :13, #BOTTOM LEFT RIGHT
-            ((-1, 0), (1, 0))		:14, #LEFT RIGHT
-            ((0, -1), (0, 1))		:15, #TOP BOTTOM
+            ((-1,0),(0,-1),(0,1),(1,0)) :9,  #top bottom left right
+            ((-1,0),(0,-1),(0,1))       :10, #top bottom left
+            ((0,-1), (0,1), (1,0))   	:11, #top bottom right
+            ((-1, 0), (0, -1), (1, 0))  :12, #top left right
+            ((-1, 0), (0, 1), (1, 0))   :13, #bottom left right
+            ((-1, 0), (1, 0))		:14, #left right
+            ((0, -1), (0, 1))		:15, #top bottom
         }[tuple(offset)]
 
     def detect_sprite(self, board):
