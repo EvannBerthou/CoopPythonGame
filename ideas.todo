@@ -43,7 +43,7 @@ Todo:
       - [ ] Doors
       - [ ] Empty 
       - [ ] Plate
-      - [ ] Starting
+      - [X] Starting
       - [X] Teleporter
       - [X] End tile
     - [ ] Players

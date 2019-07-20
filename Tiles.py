@@ -105,7 +105,7 @@ class Ground(Tile):
             y = self.y + i[1]
             if x >= 0 and x < len(board[0]) and y >= 0 and y < len(board[0]): #IF ITS ON THE BOARD
                 tile = board[y][x]
-                if not isinstance(tile, Ground) and not isinstance(tile, Empty):
+                if not isinstance(tile, (Ground, Empty,Door)):
                     direction.append(i)
             else:
                 direction.append(i)
@@ -169,13 +169,18 @@ class Door(Tile):
     def __init__(self,data):
         Tile.__init__(self,data)
         self.collide = data["default"] if "default" in data else True
+        self.sprite_id = 0 if self.collide else 1
+        self.sprites = load_sprites_in_folder(Door.tile_type)
+        self.max_sprite = len(self.sprites)
+        self.sprite = self.load_sprite(self.sprite_id)
 
     def toggle(self,board):
         self.collide = not self.collide
+        self.sprite_id = 0 if self.collide else 1
+        self.sprite = self.load_sprite(self.sprite_id)
 
     def draw(self, game, offset):
-        color = Door.color if self.collide else Door.opened_color
-        pygame.draw.rect(game.win, color, (self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
+        game.win.blit(self.sprite, (self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
 
     def to_json_data(self):
         json_data = json.dumps({
