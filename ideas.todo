@@ -40,7 +40,7 @@ Todo:
     - [ ] Tiles:
       - [X] Ground
       - [X] Wall
-      - [ ] Doors
+      - [X] Doors
       - [ ] Empty 
       - [ ] Plate
       - [X] Starting

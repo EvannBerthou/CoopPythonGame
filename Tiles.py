@@ -201,6 +201,11 @@ class Pressure_plate(Tile):
         self.linked_door = None
         self.player_on = 0
 
+        self.sprite_id = 0
+        self.sprites = load_sprites_in_folder(Pressure_plate.tile_type)
+        self.max_sprite = len(self.sprites)
+        self.sprite = self.load_sprite(self.sprite_id)
+
     def get_linked_door_pos(self, data):
         if "linked_door_x" in data:
             door_x = data["linked_door_x"]
@@ -213,7 +218,7 @@ class Pressure_plate(Tile):
         self.linked_door = door
 
     def draw(self, game, offset):
-        pygame.draw.rect(game.win, Pressure_plate.color, (self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
+        game.win.blit(self.sprite, (self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
 
     def to_json_data(self):
         json_data = json.dumps({
