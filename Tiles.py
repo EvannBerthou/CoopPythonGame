@@ -239,14 +239,17 @@ class Starting_tile(Tile):
         Tile.__init__(self,data)
         self.team = data["default"] if "default" in data else "RED"
         self.collide = False
+        self.sprite_id = 0
+        self.sprites = load_sprites_in_folder(Starting_tile.tile_type)
+        self.max_spirte = len(self.sprites)
+        self.sprite = self.load_sprite(self.sprite_id)
 
     def toggle(self,board):
         if self.team == "RED": self.team = "BLUE"
         else: self.team = "RED"
 
     def draw(self, game, offset):
-        color = Starting_tile.red if self.team == "RED" else Starting_tile.blue
-        pygame.draw.rect(game.win, color, (self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
+        game.win.blit(self.sprite, (self.x * self.size + offset, self.y * self.size + offset, self.size, self.size))
 
     def to_json_data(self):
         json_data = json.dumps({
