@@ -1,3 +1,5 @@
+from CommandMap import CommandMap
+
 import socket
 from threading import Thread
 import select
@@ -20,6 +22,8 @@ class ClientThread(Thread):
         self.running = True
         self.drawer = drawer
         self.server = server
+
+        self.command_map = CommandMap()
 
         self.drawer.addstr("[+] New Thread for client {}:{}".format(self.ip, self.port))
         ClientThread.clients.append(self)
