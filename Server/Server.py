@@ -23,8 +23,6 @@ class ClientThread(Thread):
         self.drawer = drawer
         self.server = server
 
-        self.command_map = CommandMap()
-
         self.drawer.addstr("[+] New Thread for client {}:{}".format(self.ip, self.port))
         ClientThread.clients.append(self)
         self.drawer.addstr("[!] {} online clients".format(len(ClientThread.clients)))
@@ -182,6 +180,9 @@ class Server:
         self.aliases_file_path = self.get_aliases_file_path()
         self.aliases = self.load_aliases()
 
+        self.command_map = CommandMap()
+
+
     def run(self):
         while self.running:
             self.socket.listen(5)
@@ -199,7 +200,7 @@ class Server:
                         client.socket.close()
 
     def CloseServer(self, *args):
-        self.drawer.addstr("[!] Closing server")
+        self.drawer.addstr("[!] Closing self")
         self.drawer.running = False
         self.running = False
         for client in ClientThread.clients:
@@ -273,8 +274,6 @@ class Server:
 
     def command(self, command):
         commands = {
-                "quit": self.CloseServer,
-                "exit": self.CloseServer,
                 "load_map": self.load_map,
                 "reload_map": self.reload_map,
                 "add_map": self.add_map,
@@ -304,6 +303,8 @@ class Server:
                 commands[alias_name](args)
         elif command != "":
             self.drawer.addstr("Invalid command")
+
+        self.command_map.execute(self, command_name, args)
 
     def add_map(self, args):
         if not args:

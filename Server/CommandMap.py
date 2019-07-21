@@ -2,7 +2,8 @@ from Commands import *
 
 class CommandMap:
     def set_commands(self):
-        pass
+        self.register("exit", Exit())
+        self.register("quit", Exit())
 
     def register(self, name, command):
         if name in self.commands:
@@ -11,9 +12,9 @@ class CommandMap:
 
         self.commands[name] = command
 
-    def execute(self, command_name, args):
+    def execute(self, server, command_name, args):
         if command_name in self.commands:
-            return self.commands[command_name].execute(args)
+            return self.commands[command_name].execute(server, args)
 
         print("no command named", command_name)
 
