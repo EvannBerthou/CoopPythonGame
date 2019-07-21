@@ -49,7 +49,6 @@ class Player:
         self.game.game_socket.send_message("player_sync {} {}".format(self.x, self.y))
 
     def sync(self, args):
-        #TODO: if moving distance is > 2 tiles, move first 1 case then the other instead of teleporting
         #Set the position of the coop player
         try:
             self.move(int(args[0]), int(args[1]))

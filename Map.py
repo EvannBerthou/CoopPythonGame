@@ -5,7 +5,6 @@ import pygame
 import os
 import hashlib
 
-#IT MAY BE BETTHER TO CACHE THE GAME INSTEAD OF GIVINT IT AS AN ARG
 class Map:
     def get_map_folder(self):
         asset_folder = os.path.join(os.path.dirname(__file__), "assets")
@@ -60,6 +59,38 @@ class MapData:
         self.starting_red  = starting_red
         self.starting_blue = starting_blue
 
+    def link_special_tiles(game, board):
+        starting_red  = (0,0)
+        starting_blue = (0,0)
+        for i in range(16):
+            for j in range(16):
+                tile = board[i][j]
+                tile.detect_sprite(board)
+                if isinstance(tile, Tiles.Pressure_plate):
+                    if tile.linked_door_pos != (-1,-1):
+                        door = board[tile.linked_door_pos[1]][tile.linked_door_pos[0]]
+                        tile.link_to_door(door)
+
+                if isinstance(tile, Tiles.Teleporter):
+                    if tile.linked_teleporter_pos != (-1,-1):
+                        teleporter = board[tile.linked_teleporter_pos[1]][tile.linked_teleporter_pos[0]]
+                        tile.link_to_teleporter(teleporter)
+
+                if isinstance(tile, Tiles.Starting_tile):
+                    if tile.team == "RED":
+                        starting_red = (tile.x, tile.y)
+                    elif tile.team == "BLUE":
+                        starting_blue = (tile.x, tile.y)
+
+                if isinstance(tile, Tiles.End_Tile):
+                    if tile.other_end_tile_pos != (-1,-1):
+                        other_end_tile = board[tile.other_end_tile_pos[1]][tile.other_end_tile_pos[0]]
+                        tile.set_other_end_tile(other_end_tile)
+
+                if isinstance(tile, Tiles.End_Tile):
+                    tile.server_socket = game.game_socket.socket
+        return board,starting_red,starting_blue
+
     def from_file(path, game):
         import json
         with open(path, 'r') as f:
@@ -68,8 +99,6 @@ class MapData:
 
             author = data["author"]
             board_data = data["board"]
-            starting_red  = (0,0)
-            starting_blue = (0,0)
 
             board = [[0 for _ in range(16)] for _ in range(16)]
 
@@ -77,35 +106,7 @@ class MapData:
                 for j in range(16): #y
                     board[i][j] = Tiles.from_json_data(board_data[i][j])
 
-            #TODO: MOVE IT TO ITS OWN FUNCTION
-            #LINKS SPECIAL TILES
-            for i in range(16):
-                for j in range(16):
-                    tile = board[i][j]
-                    tile.detect_sprite(board)
-                    if isinstance(tile, Tiles.Pressure_plate):
-                        if tile.linked_door_pos != (-1,-1):
-                            door = board[tile.linked_door_pos[1]][tile.linked_door_pos[0]]
-                            tile.link_to_door(door)
-
-                    if isinstance(tile, Tiles.Teleporter):
-                        if tile.linked_teleporter_pos != (-1,-1):
-                            teleporter = board[tile.linked_teleporter_pos[1]][tile.linked_teleporter_pos[0]]
-                            tile.link_to_teleporter(teleporter)
-
-                    if isinstance(tile, Tiles.Starting_tile):
-                        if tile.team == "RED":
-                            starting_red = (tile.x, tile.y)
-                        elif tile.team == "BLUE":
-                            starting_blue = (tile.x, tile.y)
-
-                    if isinstance(tile, Tiles.End_Tile):
-                        if tile.other_end_tile_pos != (-1,-1):
-                            other_end_tile = board[tile.other_end_tile_pos[1]][tile.other_end_tile_pos[0]]
-                            tile.set_other_end_tile(other_end_tile)
-
-                    if isinstance(tile, Tiles.End_Tile):
-                        tile.server_socket = game.game_socket.socket
+            board,starting_red,starting_blue = MapData.link_special_tiles(game, board)
 
             print("Map loaded")
             return MapData(author, board, starting_red, starting_blue)
