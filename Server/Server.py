@@ -6,7 +6,6 @@ import select
 import argparse
 import curses
 import os
-import hashlib
 import time
 import sys
 import struct
@@ -27,6 +26,7 @@ class ClientThread(Thread):
         ClientThread.clients.append(self)
         self.drawer.addstr("[!] {} online clients".format(len(ClientThread.clients)))
         self.sendall("game_id {}".format(len(ClientThread.clients)))
+        server.online_player += 1
 
     def run(self):
         while self.running:
@@ -38,6 +38,7 @@ class ClientThread(Thread):
                     # self.drawer.addstr(r)
                 else:
                     #WHEN 1 PLAYER IS DISCONNECTED, DISCONNECT ALL OTHER PLAYERS
+                    server.online_player -= 1
                     self.drawer.addstr("[-] Client disconnect {}:{}".format(self.ip, self.port))
                     for client in ClientThread.clients:
                         ClientThread.clients.remove(client)
@@ -170,6 +171,10 @@ class Server:
         self.socket = self.initialize_socket()
         self.running = True
 
+        self.command_map = CommandMap()
+
+        self.online_player = 0
+
         self.map_folder = self.get_map_folder_path()
         self.start_time = time.time()
         self.loaded_map_name = []
@@ -178,9 +183,8 @@ class Server:
         self.map_playlist = []
 
         self.aliases_file_path = self.get_aliases_file_path()
-        self.aliases = self.load_aliases()
-
-        self.command_map = CommandMap()
+        self.aliases = {}
+        self.command_map.execute(self, "load_aliases", "")
 
 
     def run(self):
@@ -200,7 +204,7 @@ class Server:
                         client.socket.close()
 
     def CloseServer(self, *args):
-        self.drawer.addstr("[!] Closing self")
+        self.drawer.addstr("[!] Closing server")
         self.drawer.running = False
         self.running = False
         for client in ClientThread.clients:
@@ -208,44 +212,16 @@ class Server:
             client.running = False
         self.socket.close()
 
-    def player_count(self, *args):
-        self.drawer.addstr("{} players connected".format(len(ClientThread.clients)))
-
-    def uptime(self, *args):
-        now = time.time()
-        elapse_time = now - self.start_time
-        time_format = time.strftime("%M:%S", time.gmtime(elapse_time))
-        self.drawer.addstr("{}".format(time_format))
-
     def get_aliases_file_path(self):
         file_name = "aliases.json"
         self_file_path = os.path.dirname(__file__)
         file_path = os.path.join(self_file_path, file_name)
         return file_path
 
-    def print_alias(self, args):
-        alias = self.get_alias(args[0])
-        alias_name = alias[0]
-        alias_args = " ".join(str(x[0]) for x in alias[1:])
-        if alias:
-            self.drawer.addstr("{} {}".format(alias_name, alias_args))
-
-    def get_alias(self, alias):
-        if alias in self.aliases:
-            return self.aliases[alias]
-        return None
-
     def save_aliases(self):
         json_data = json.dumps(self.aliases)
         with open(self.aliases_file_path, 'w') as f:
             f.write(json_data)
-
-    def add_aliases(self, args):
-        name = args[0]
-        alias = args[1]
-        alias_args = args[2:]
-        self.aliases[name] = alias + " " + " ".join(alias_args)
-        self.save_aliases()
 
     def get_alias(self, args):
         parts = args.split(' ')
@@ -256,131 +232,15 @@ class Server:
             return (alias_name, alias_args)
         return (None, None)
 
-    def load_aliases(self):
-        if os.path.exists(self.aliases_file_path):
-            with open(self.aliases_file_path, 'r') as f:
-                json_data = f.read()
-                data = json.loads(json_data)
-                return data
-        else:
-            self.addstr("No aliases file")
-
-    def list_aliases(self, args):
-        self.drawer.addstr("Loaded aliases :")
-        for alias in  self.aliases:
-            alias_name, alias_args = self.get_alias(alias)
-            msg = "    - {} : {} {}".format(alias, alias_name, *alias_args)
-            self.drawer.addstr(msg)
-
     def command(self, command):
-        commands = {
-                "load_map": self.load_map,
-                "reload_map": self.reload_map,
-                "add_map": self.add_map,
-                "next_map": self.load_next_map,
-                "clear_playlist": self.clear_playlist,
-                "load_playlist": self.load_playlist,
-                "list_playlist": self.list_playlist,
-                "clear": self.drawer.clear_screen,
-                "list": self.player_count,
-                "uptime": self.uptime,
-                "set_alias": self.add_aliases,
-                "get_alias": self.print_alias,
-                "list_aliases": self.list_aliases,
-                #TODO: "help", self.print_help,
-        }
-
+        alias_name,alias_args = self.get_alias(command)
         command_name = command.split(' ')[0]
         args = command.split(' ')[1:]
-        alias_name,alias_args = self.get_alias(command)
 
-        if command_name in commands:
-            commands[command_name](args)
-        elif alias_name:
-            if alias_args:
-                commands[alias_name](alias_args)
-            else:
-                commands[alias_name](args)
-        elif command != "":
-            self.drawer.addstr("Invalid command")
+        if alias_name: command_name = alias_name #Override the alias given by the user with the actual command
+        if alias_args: args = alias_args + args #args from the alias + args from the user
 
         self.command_map.execute(self, command_name, args)
-
-    def add_map(self, args):
-        if not args:
-            self.drawer.addstr("No map name provided")
-            return
-        map_name = args[0]
-        map_path = os.path.join(self.map_folder, map_name)
-        if os.path.exists(map_path):
-            self.map_playlist.append(map_name)
-            self.drawer.addstr("Map added to the playlist")
-        else:
-            self.drawer.addstr("There is no map named '{}'".format(map_name))
-
-    #ONLY RELOADS FOR NOW
-    def load_next_map(self, *args):
-        if self.map_playlist:
-            next_map = self.map_playlist.pop(0)
-            self.load_map([next_map])
-        else: #If there is no more map in the playlist, just reload the current loaded one
-            self.reload_map()
-
-    def clear_playlist(self, args):
-        self.map_playlist.clear()
-        self.drawer.addstr("Playlist cleared")
-
-    def load_playlist(self, args):
-        if not args:
-            self.drawer.addstr("No file path provided")
-            return
-
-        file_path = " ".join(args)
-        if os.path.exists(file_path):
-            with open(file_path) as f:
-                for line in f.read().splitlines():
-                    self.add_map([line])
-        else:
-            self.drawer.addstr("The given file does not exists")
-
-
-    def list_playlist(self, args):
-        if self.map_playlist:
-            self.drawer.addstr("Map loaded in the playlist : ")
-            for map_name in self.map_playlist:
-                self.drawer.addstr("    - {}".format(map_name))
-        else:
-            self.drawer.addstr("There is no map in the playlist currently")
-
-
-    def hash_map(self, map_path):
-        with open(map_path, 'r') as f:
-            map_hash = hashlib.sha256(f.read().encode()).hexdigest()
-            return map_hash
-
-    def load_map(self, args):
-        if len(ClientThread.clients) != 2:
-            self.drawer.addstr("You need to be 2 players in order to play and load a map")
-            return
-
-        map_name = args[0]
-        map_path = os.path.join(self.map_folder, map_name)
-        self.drawer.addstr(map_path)
-        if os.path.exists(map_path):
-            map_hash = self.hash_map(map_path)
-            self.drawer.addstr("Map hash: {}".format(map_hash))
-            self.send_message_to_all_client("map_hash {} {}".format(map_name, map_hash))
-            self.loaded_map_name.clear()
-            self.loaded_map_name.append(map_name)
-        else:
-            self.drawer.addstr("The map {} does not exist".format(map_name))
-            self.loaded_map_path = None
-
-    def reload_map(self, *args):
-        if self.loaded_map_name:
-            self.load_map(self.loaded_map_name)
-        else:
-            self.drawer.addstr("No map is currently loaded")
 
     def send_message_to_all_client(self, message):
         for client in ClientThread.clients:
