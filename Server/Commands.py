@@ -202,7 +202,7 @@ class Next_Map(Command):
             next_map = server.map_playlist.pop(0)
             server.load_map([next_map])
         else: #If there is no more map in the playlist, just reload the current loaded one
-            server.reload_map()
+            server.command_map.execute(server, "reload_map", "")
 
 class Reload_Map(Command):
     def __init__(self):
@@ -212,6 +212,6 @@ class Reload_Map(Command):
 
     def execute(self, server, args):
         if server.loaded_map_name:
-            server.load_map(server.loaded_map_name)
+            server.command_map.execute(server, "load_map", server.loaded_map_name)
         else:
             server.drawer.addstr("No map is currently loaded")

@@ -250,7 +250,7 @@ class Server:
         if not self.game_ended:
             self.drawer.addstr("Game ended")
             self.game_ended = True
-            self.load_next_map()
+            self.command_map.execute(self, "next_map", "")
 
     def on_game_started(self, args):
         self.game_started = False
