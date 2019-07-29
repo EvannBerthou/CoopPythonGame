@@ -1,5 +1,6 @@
 import Player
 import Tiles
+import GameState
 
 import pygame
 import os
@@ -29,6 +30,7 @@ class Map:
                 if local_map_hash == map_hash:
                     self.map_data = MapData.from_file(map_path, self.game)
                     self.is_playing = True
+                    self.game.game_state = GameState.IN_GAME
                     self.game.game_socket.send_message("game_started")
                     self.create_player()
                 else:

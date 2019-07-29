@@ -1,5 +1,5 @@
 Ideas:
-  - [ ] Server:
+  - [X] Server:
     - [X] Commands:
       - [X] add_map <map_name> : add the map to playlist
       - [X] next_map : loads the next map in the playlist
@@ -11,7 +11,7 @@ Ideas:
     - [X] Playlist:
       - [X] File:
         - [X] a list of map name to load in order
-    - [ ] Refactor commands to be class (?)
+    - [X] Refactor commands to be class (?)
 
   - [ ] Map:
     - [ ] Tiles:

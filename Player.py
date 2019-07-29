@@ -1,3 +1,5 @@
+import GameState
+
 import pygame
 from pygame.locals import *
 
@@ -24,7 +26,7 @@ class Player:
         return not tile.collide
 
     def move(self, new_x, new_y):
-        if self.game.map.is_playing:
+        if self.game.game_state == GameState.IN_GAME:
             self.game.map.map_data.board[self.y][self.x].on_leave()
             self.x = new_x
             self.y = new_y

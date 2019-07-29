@@ -3,6 +3,7 @@ import Map
 import Player
 import Tiles
 import ChatBox
+import GameState
 
 import pygame
 import argparse
@@ -13,6 +14,8 @@ class Game:
         self.w,self.h = w,h
         self.win = pygame.display.set_mode((self.w,self.h))
         self.game_socket = Client.GameSocket(args.ip, args.port)
+
+        self.game_state = GameState.WAITING
 
         self.map = Map.Map(self)
         self.network_manager = Client.NetworkManger(self)
@@ -35,16 +38,20 @@ class Game:
             for event in events:
                 if event.type == QUIT:
                     running = False
-
                 if event.type == pygame.KEYDOWN:
-                    if self.map.map_data and not self.chat_box.enabled:
+                    if self.game_state == GameState.IN_GAME and not self.chat_box.enabled:
                         self.player.on_key_pressed()
 
-            self.chat_box.update(events)
-            self.chat_box.input_field.update(events)
             self.network_manager.update_network()
-            self.update(dt)
-            self.draw()
+
+            if self.game_state == GameState.MAIN_MENU: pass
+            if self.game_state == GameState.WAITING: pass
+            if self.game_state == GameState.IN_GAME:
+                self.chat_box.update(events)
+                self.chat_box.input_field.update(events)
+                self.update(dt)
+                self.draw()
+
         self.close()
 
     def update(self,dt):
