@@ -9,6 +9,8 @@ import pygame
 import argparse
 from pygame.locals import *
 
+WAITING_FONT = pygame.font.SysFont("Fira mono", 28)
+
 class Game:
     def __init__(self,w,h, args):
         self.w,self.h = w,h
@@ -45,7 +47,10 @@ class Game:
             self.network_manager.update_network()
 
             if self.game_state == GameState.MAIN_MENU: pass
-            if self.game_state == GameState.WAITING: pass
+
+            if self.game_state == GameState.WAITING:
+                self.draw_waiting()
+
             if self.game_state == GameState.IN_GAME:
                 self.chat_box.update(events)
                 self.chat_box.input_field.update(events)
@@ -53,6 +58,12 @@ class Game:
                 self.draw()
 
         self.close()
+
+    def draw_waiting(self):
+        self.win.fill((0,0,0))
+        rendered_text = WAITING_FONT.render("Waiting for another player", 1, (255,255,255))
+        self.win.blit(rendered_text, (self.w / 2 - rendered_text.get_width() / 2, self.h / 2))
+        pygame.display.update()
 
     def update(self,dt):
         if self.tick >= 500:
