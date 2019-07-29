@@ -53,7 +53,6 @@ class Game:
 
             if self.game_state == GameState.IN_GAME:
                 self.chat_box.update(events)
-                self.chat_box.input_field.update(events)
                 self.update(dt)
                 self.draw()
 
