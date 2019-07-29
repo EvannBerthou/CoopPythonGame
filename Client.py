@@ -6,18 +6,20 @@ import struct
 import time
 
 class GameSocket:
-    def create_socket(self, ip, port):
-        connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connection.connect((ip, port))
-        return connection
+    def create_socket(ip, port):
+        try:
+            connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            connection.connect((ip, port))
+            return connection
+        except:
+            print("Could not connection to {}:{}".format(ip,port))
+            return None
 
     def send_message(self, message):
         self.sendall(message)
 
-    def __init__(self, ip, port):
-        self.ip = ip
-        self.port = port
-        self.socket = self.create_socket(self.ip, self.port)
+    def __init__(self, socket):
+        self.socket = socket
         self.Listener = Listener(self.socket)
         self.Listener.start()
 

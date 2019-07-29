@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 
-pygame.init()
+pygame.font.init()
 
 INPUT_FIELD_FONT = pygame.font.SysFont("Fira mono", 16)
 
@@ -104,10 +104,16 @@ class InputField:
         elif event.key == K_DELETE: self.delete_word_delete()
 
     def update(self, events):
-        if not self.selected: return
         self.enter_pressed = False
         mods = pygame.key.get_mods()
         for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                mouse_clicks = pygame.mouse.get_pressed()
+                self.selected = self.is_clicked(mouse_pos, mouse_clicks)
+
+            if not self.selected: return
+
             if event.type == pygame.KEYDOWN:
                 if event.key == K_RETURN: self.enter_pressed = True
                 elif mods & KMOD_LCTRL: self.ctrl_control(event)
@@ -121,6 +127,7 @@ class InputField:
                     self.cursor_pos += 1
                     self.remove_letter()
                 else: self.add_letter(event.unicode)
+
 
     def reset(self):
         self.text = ''
