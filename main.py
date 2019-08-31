@@ -39,6 +39,7 @@ class Game:
         socket = Client.GameSocket.create_socket(ip,port)
         if socket:
             self.game_socket = Client.GameSocket(socket)
+            self.chat_box.game_socket = self.game_socket
             self.game_state = GameState.WAITING
 
     def run(self):
